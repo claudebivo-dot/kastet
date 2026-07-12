@@ -13,25 +13,28 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============ TOKENS ============ */
 :root{
-  --felt-950:#04170F;
-  --felt-900:#06231A;
-  --felt-800:#0A2E21;
-  --felt-700:#0C3527;
-  --felt-600:#124531;
-  --brass:#C9A45C;
-  --brass-bright:#E7C98A;
-  --brass-dim:#8A7040;
-  --cream:#F8F3E6;
-  --cream-dim:#E8E0CC;
-  --ink:#20242A;
-  --red:#B3382E;
+  /* Altın Varak: gece zümrüt + şampanya altını + fildişi */
+  --felt-950:#04120C;
+  --felt-900:#071D14;
+  --felt-800:#0A2A1D;
+  --felt-700:#0E3A28;
+  --felt-600:#12432E;
+  --brass:#D9B865;
+  --brass-bright:#F4E3AF;
+  --brass-dim:#9C7A35;
+  --foil-deep:#6E5320;
+  --cream:#FBF6E9;
+  --cream-dim:#E6DCC4;
+  --ink:#171B1E;
+  --red:#B5232E;
   --ok:#4CAF7D;
   --danger:#C05B4A;
   --display:'Cinzel',Georgia,serif;
+  --serif:'Cormorant Garamond',Georgia,serif;
   --body:'Manrope',system-ui,-apple-system,sans-serif;
   --card-r:9px;
   --shadow-card:0 2px 6px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.3);
@@ -54,10 +57,11 @@ input{font-family:var(--body)}
 .screen{min-height:100dvh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;padding-top:var(--safe-t)}
 .hidden{display:none !important}
 
-/* felt grain */
+/* gravür monogram deseni + çuha dokusu */
 body::before{
-  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23F4E3AF' stroke-width='1' opacity='.028'%3E%3Cpath d='M36 12 L48 36 L36 60 L24 36 Z'/%3E%3Ccircle cx='36' cy='36' r='5'/%3E%3C/g%3E%3C/svg%3E"),
     repeating-linear-gradient(115deg,rgba(255,255,255,.012) 0 2px,transparent 2px 4px),
     repeating-linear-gradient(25deg,rgba(0,0,0,.03) 0 3px,transparent 3px 6px);
 }
@@ -69,14 +73,26 @@ body::before{
   padding:calc(28px + var(--safe-t)) 24px calc(32px + var(--safe-b));
   height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
-.crest{width:88px;height:120px;position:relative;margin-bottom:2px}
-.crest .cardback{position:absolute;inset:0;border-radius:10px}
-.crest .cb1{transform:rotate(-10deg) translateX(-14px)}
-.crest .cb2{transform:rotate(8deg) translateX(14px)}
+.medallion{
+  width:110px;height:110px;border-radius:50%;position:relative;
+  background:radial-gradient(65% 65% at 38% 30%,var(--felt-600),var(--felt-900) 75%);
+  box-shadow:
+    0 0 0 2px var(--brass-dim),0 0 0 3.5px rgba(244,227,175,.25),
+    0 14px 34px rgba(0,0,0,.6), inset 0 2px 14px rgba(244,227,175,.12);
+  display:flex;align-items:center;justify-content:center;
+}
+.medallion::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(244,227,175,.4)}
+.medallion b{
+  font-family:var(--display);font-weight:900;font-size:48px;
+  background:linear-gradient(175deg,var(--brass-bright),var(--brass) 55%,var(--foil-deep));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));
+}
+.medallion .lau{position:absolute;bottom:7px;font-size:12px;color:var(--brass);letter-spacing:3px}
 h1.title{
   font-family:var(--display);font-weight:900;font-size:clamp(44px,13vw,58px);
   letter-spacing:.14em;line-height:1;
-  background:linear-gradient(105deg,#8A6A2F 0%,#E7C98A 28%,#FFF3CE 50%,#E7C98A 72%,#8A6A2F 100%);
+  background:linear-gradient(105deg,var(--foil-deep) 0%,var(--brass) 26%,#FFF6D8 50%,var(--brass) 74%,var(--foil-deep) 100%);
   background-size:220% 100%;
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 3px 10px rgba(0,0,0,.55));
@@ -84,7 +100,10 @@ h1.title{
 }
 @keyframes shimmer{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
 @media (prefers-reduced-motion:reduce){h1.title{animation:none}}
-.subtitle{font-size:13px;letter-spacing:.32em;color:var(--brass);text-transform:uppercase;font-weight:600}
+.subtitle{
+  font-family:var(--serif);font-style:italic;font-size:17px;letter-spacing:.1em;
+  color:var(--cream-dim);opacity:.82;font-weight:500;
+}
 .rule-line{display:flex;align-items:center;gap:12px;width:min(280px,70vw);opacity:.9}
 .rule-line::before,.rule-line::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--brass-dim))}
 .rule-line::after{background:linear-gradient(90deg,var(--brass-dim),transparent)}
@@ -105,16 +124,23 @@ h1.title{
 .btn:active{transform:scale(.97)}
 .btn:focus-visible{outline:2px solid var(--brass-bright);outline-offset:2px}
 .btn-gold{
-  background:linear-gradient(180deg,var(--brass-bright),var(--brass) 55%,#A9843F);
-  color:#241B08;box-shadow:0 4px 14px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.5);
+  background:linear-gradient(180deg,#FFF2CC,var(--brass) 48%,var(--brass-dim));
+  color:#241B08;box-shadow:0 10px 26px rgba(217,184,101,.22),inset 0 1.5px 0 rgba(255,255,255,.7),inset 0 -2px 4px rgba(0,0,0,.2);
   width:min(300px,80vw);
+  font-family:var(--display);font-weight:700;letter-spacing:.12em;
+  position:relative;overflow:hidden;
+}
+.btn-gold::after{
+  content:"";position:absolute;top:0;bottom:0;left:-70%;width:36%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);
 }
 .btn-ghost{
   background:rgba(0,0,0,.28);border:1px solid rgba(201,164,92,.4);color:var(--brass-bright);
   width:min(300px,80vw);
 }
 .btn[disabled]{opacity:.38;pointer-events:none}
-.menu-foot{font-size:11.5px;color:rgba(248,243,230,.4);margin-top:6px;line-height:1.6}
+.menu-foot{font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(251,246,233,.38);margin-top:6px;line-height:1.6}
 
 /* ============ CARD BACK (kilim) ============ */
 .cardback{
@@ -152,11 +178,12 @@ h1.title{
   background:linear-gradient(180deg,rgba(4,23,15,.85),rgba(4,23,15,0));
 }
 .pchip{
-  flex:1;display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;
-  background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.18);min-width:0;
+  flex:1;display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:13px;min-width:0;
+  background:linear-gradient(160deg,rgba(244,227,175,.08),rgba(0,0,0,.3)),#0C1A13;
+  border:1px solid rgba(244,227,175,.22);
 }
-.pchip.active{border-color:var(--brass);box-shadow:0 0 0 1px rgba(201,164,92,.35),0 0 14px rgba(201,164,92,.12)}
-.pchip .pname{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pchip.active{border-color:var(--brass);box-shadow:0 0 0 1px rgba(244,227,175,.35),0 0 18px rgba(217,184,101,.15)}
+.pchip .pname{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pchip.active .pname{color:var(--brass-bright)}
 .pchip .pmeta{font-size:11px;color:rgba(248,243,230,.55);display:flex;gap:8px}
 .centerinfo{
@@ -180,9 +207,17 @@ h1.title{
 .table-empty b{color:var(--brass);font-weight:700}
 .melds{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
 .meld{
-  display:flex;padding:7px 8px;border-radius:12px;position:relative;
-  background:rgba(0,0,0,.26);border:1px solid rgba(201,164,92,.22);
+  display:flex;padding:8px 9px;border-radius:12px;position:relative;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.3),rgba(0,0,0,.16)),
+    repeating-linear-gradient(115deg,rgba(0,0,0,.1) 0 2px,transparent 2px 5px);
+  border:1px solid rgba(244,227,175,.22);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.3);
   transition:border-color .15s, box-shadow .15s;
+}
+.meld::before{ /* varak pim çizgisi */
+  content:"";position:absolute;top:-2px;left:12px;right:12px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(244,227,175,.5),transparent);
 }
 .meld.droptarget{border-color:var(--brass-bright);box-shadow:0 0 0 1.5px rgba(231,201,138,.5);cursor:pointer}
 .meld.invalid{border-color:var(--danger);box-shadow:0 0 0 1px rgba(192,91,74,.5)}
@@ -196,8 +231,8 @@ h1.title{
 /* cards — minimal premium yüz: büyük merkez harf + köşe indeksleri */
 .card{
   width:44px;aspect-ratio:63/88;border-radius:var(--card-r);
-  background:linear-gradient(165deg,#FFFFFF,#FBF7EE 58%,#F0EADA);
-  box-shadow:var(--shadow-card);
+  background:linear-gradient(168deg,#FFFFFF,#F8F2E1 60%,#ECE3CC);
+  box-shadow:var(--shadow-card),inset 0 0 0 .5px rgba(217,184,101,.5);
   position:relative;flex-shrink:0;
   border:1px solid rgba(0,0,0,.18);
   transition:transform .14s,box-shadow .14s;
@@ -205,6 +240,7 @@ h1.title{
   display:flex;align-items:center;justify-content:center;
 }
 .card.red{color:#C2242E}
+.card .jhat{width:56%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
 .card .ci{
   position:absolute;top:4px;left:5px;text-align:center;
   font-family:var(--display);font-weight:900;font-size:13px;line-height:1;
@@ -232,18 +268,22 @@ h1.title{
   background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.25);
 }
 .hand{
-  display:flex;overflow-x:auto;padding:12px 16px 6px;gap:0;
+  display:flex;overflow-x:auto;padding:16px 16px 18px;gap:0;
   scrollbar-width:none;
 }
 .hand::-webkit-scrollbar{display:none}
-.hand .card{width:56px}
+.hand .card{
+  width:56px;
+  transform:rotate(var(--rot,0deg)) translateY(var(--ty,0px)); /* yelpaze */
+}
+.hand .card.sel{transform:rotate(var(--rot,0deg)) translateY(calc(var(--ty,0px) - 14px))}
 .hand .card+.card{margin-left:var(--ov,-24px)}
 .hand .card .ci{font-size:17px;top:5px;left:6px}
 .hand .card .ci em{font-size:15.5px;margin-top:2px}
 .hand .card.fresh{box-shadow:0 0 0 2px var(--ok),var(--shadow-card)}
 
 /* action bar */
-.actions{display:flex;gap:8px;padding:8px 12px 4px}
+.actions{display:flex;gap:9px;padding:6px 12px 4px;align-items:center}
 .abtn{
   flex:1;padding:13px 6px;border-radius:12px;font-weight:800;font-size:13.5px;letter-spacing:.02em;
   transition:transform .12s,opacity .2s;
@@ -251,8 +291,14 @@ h1.title{
 .abtn:active{transform:scale(.97)}
 .abtn[disabled]{opacity:.35;pointer-events:none}
 .abtn-draw{background:rgba(0,0,0,.35);border:1px solid rgba(201,164,92,.45);color:var(--brass-bright)}
-.abtn-ok{background:linear-gradient(180deg,var(--brass-bright),var(--brass) 55%,#A9843F);color:#241B08;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-.abtn-ok:not([disabled]){box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 18px rgba(201,164,92,.35)}
+.abtn-ok{ /* altın mühür */
+  flex:0 0 auto;width:70px;height:70px;border-radius:50%;position:relative;
+  font-family:var(--display);font-weight:900;font-size:11.5px;letter-spacing:.05em;color:#241B08;
+  background:radial-gradient(62% 62% at 36% 30%,#FFF2CC,var(--brass) 52%,var(--brass-dim));
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.65),inset 0 -4px 8px rgba(0,0,0,.28);
+}
+.abtn-ok::before{content:"";position:absolute;inset:5px;border-radius:50%;border:1px dashed rgba(36,27,8,.45)}
+.abtn-ok:not([disabled]){box-shadow:0 8px 22px rgba(217,184,101,.3),inset 0 2px 3px rgba(255,255,255,.65),inset 0 -4px 8px rgba(0,0,0,.28)}
 .pchip{backdrop-filter:blur(6px)}
 .abtn-undo{background:rgba(0,0,0,.35);border:1px solid rgba(192,91,74,.55);color:#E8A79B}
 .statusline{
@@ -451,6 +497,9 @@ body[data-felt="antrasit"]{--felt-950:#0A0B0D;--felt-900:#101216;--felt-800:#151
   font-family:var(--display);font-weight:700;color:var(--brass-bright);
   font-size:24px;letter-spacing:.08em;text-align:center;margin-bottom:16px;
 }
+.panel.ornate{position:relative;border-color:rgba(244,227,175,.45);box-shadow:0 30px 70px rgba(0,0,0,.7),inset 0 1px 0 rgba(244,227,175,.25)}
+.panel.ornate::before{content:"";position:absolute;inset:7px;border-radius:14px;border:1px solid rgba(244,227,175,.16);pointer-events:none}
+.laurel{text-align:center;font-size:22px;letter-spacing:9px;color:var(--brass);margin-bottom:6px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
 .panel .btn{width:100%;margin-top:10px}
 .rules-body{font-size:14px;line-height:1.75;color:var(--cream-dim)}
 .rules-body h3{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin:16px 0 6px;font-weight:800}
@@ -947,10 +996,8 @@ function scheduleBot(){
   }, 1100);
 }
 
-// Elde bulunabilecek ayrık perleri bul (önce en uzun seriler, sonra kütler)
-function findHandMelds(hand){
-  const avail = new Set(hand);
-  const melds = [];
+// Eldeki kartlardan seriler topla
+function collectRuns(hand, avail, melds){
   for(let s=0; s<4; s++){
     let go = true;
     while(go){
@@ -959,8 +1006,7 @@ function findHandMelds(hand){
       for(const id of hand)
         if(avail.has(id) && CARDS[id].suit===s)
           (byRank[CARDS[id].rank] = byRank[CARDS[id].rank]||[]).push(id);
-      const rs = new Set(Object.keys(byRank).map(Number));
-      const sorted = [...rs].sort((a,b)=>a-b);
+      const sorted = [...new Set(Object.keys(byRank).map(Number))].sort((a,b)=>a-b);
       let best = null;
       for(let i=0; i<sorted.length;){
         let j = i;
@@ -983,6 +1029,9 @@ function findHandMelds(hand){
       }
     }
   }
+}
+// Eldeki kartlardan kütler topla
+function collectSets(hand, avail, melds){
   const byRank = {};
   for(const id of hand)
     if(avail.has(id))
@@ -993,7 +1042,15 @@ function findHandMelds(hand){
     const ids = Object.values(bySuit).slice(0,4);
     if(ids.length>=3){ ids.forEach(id=>avail.delete(id)); melds.push(ids); }
   }
-  return melds;
+}
+// İki bölüştürmeyi de dene (önce seri / önce küt), iyisini seç:
+// daha çok per, eşitse daha çok kart. (Örn: 3♠4♠5♠6♠ + 6♥6♦ elinde
+// seri-önce tek per bulurken küt-önce 6'lı küt + 3-4-5 seriyi bulur.)
+function findHandMelds(hand){
+  const a = []; { const av = new Set(hand); collectRuns(hand, av, a); collectSets(hand, av, a); }
+  const b = []; { const av = new Set(hand); collectSets(hand, av, b); collectRuns(hand, av, b); }
+  const size = ms => ms.reduce((t,m)=>t+m.length,0);
+  return (b.length>a.length || (b.length===a.length && size(b)>size(a))) ? b : a;
 }
 
 // Eldeki tek kartları yerdeki perlere işlemeyi dene
@@ -1018,18 +1075,34 @@ function botAppends(hand){
   return played;
 }
 
+// Bir perden f kartı sökülebilir mi? Sökülebiliyorsa geriye kalan geçerli
+// per(ler)i döndürür: ya tek parça, ya da seri ortasından söküm -> iki parça.
+function removeCard(m, f){
+  const rem = m.cards.filter(x=>x!==f);
+  if(rem.length>=3 && isValidMeld(rem)) return [rem];
+  if(rem.length>=6 && isRun(m.cards)){ // ortadan söküm: seriyi ikiye böl
+    const fr = CARDS[f].rank;
+    const sorted = [...rem].sort((a,b)=>CARDS[a].rank-CARDS[b].rank);
+    const left = sorted.filter(id=>CARDS[id].rank<fr);
+    const right = sorted.filter(id=>CARDS[id].rank>fr);
+    if(left.length>=3 && right.length>=3 && isValidMeld(left) && isValidMeld(right))
+      return [left, right];
+  }
+  return null;
+}
 // Zor bot: yerdeki perlerden "serbest" kartları söküp yeni per/küt kurar.
 // 1 serbest + elden 2 kart, ya da 2 serbest + elden 1 kart.
 function trySteal1(hand){
   for(const m of S.table){
     for(const f of [...m.cards]){
-      const rem = m.cards.filter(x=>x!==f);
-      if(rem.length<3 || !isValidMeld(rem)) continue; // f sökülünce per bozuluyorsa olmaz
+      const parts = removeCard(m, f);
+      if(!parts) continue;
       const real = hand.filter(id=>!CARDS[id].joker);
       for(let i=0;i<real.length;i++)
         for(let j=i+1;j<real.length;j++){
           if(isValidMeld([f, real[i], real[j]])){
-            m.cards = rem;
+            m.cards = parts[0];
+            if(parts[1]) S.table.push({id:"m"+(S.meldSeq++), cards:parts[1]});
             S.table.push({id:"m"+(S.meldSeq++), cards:[f, real[i], real[j]]});
             [real[i], real[j]].forEach(id=>hand.splice(hand.indexOf(id),1));
             return [real[i], real[j], f];
@@ -1038,6 +1111,36 @@ function trySteal1(hand){
     }
   }
   return null;
+}
+// Zor bot: seriyi bölerek elindeki ara kartı araya sokar
+// (örn. masada 5-6-7-8-9♣ + elde 7♣ -> 5-6-7♣ ve 7-8-9♣)
+function botSplitInsert(hand){
+  const played = [];
+  let go = true;
+  while(go){
+    go = false;
+    for(const m of S.table){
+      if(m.cards.length<5 || !isRun(m.cards)) continue;
+      const suit = CARDS[m.cards[0]].suit;
+      const sorted = [...m.cards].sort((a,b)=>CARDS[a].rank-CARDS[b].rank);
+      const L = CARDS[sorted[0]].rank, R = CARDS[sorted[sorted.length-1]].rank;
+      for(const h of hand.filter(id=>!CARDS[id].joker && CARDS[id].suit===suit)){
+        const r = CARDS[h].rank;
+        if(r>=L+2 && r<=R-2){
+          const left = sorted.filter(id=>CARDS[id].rank<=r);
+          const right = [h, ...sorted.filter(id=>CARDS[id].rank>r)];
+          m.cards = left;
+          S.table.push({id:"m"+(S.meldSeq++), cards:right});
+          hand.splice(hand.indexOf(h),1);
+          played.push(h);
+          go = true;
+          break;
+        }
+      }
+      if(go) break;
+    }
+  }
+  return played;
 }
 function trySteal2(hand){
   const real = hand.filter(id=>!CARDS[id].joker);
@@ -1098,6 +1201,8 @@ function botPlay(){
       const ap = botAppends(hand);
       if(ap.length){ playedIds.push(...ap); go = true; }
       if(S.diff==="zor"){
+        const ins = botSplitInsert(hand);
+        if(ins.length){ playedIds.push(...ins); go = true; }
         const stl = botSteals(hand);
         if(stl.length){ playedIds.push(...stl); go = true; }
       }
@@ -1200,8 +1305,15 @@ function cardHTML(id, opts={}){
   const style = opts.glow ? ` style="animation-delay:-${Math.round(opts.delay||0)}ms"`:"";
   if(c.joker){
     return `<div class="card joker${sel}${fresh}${glow}" data-card="${id}"${style}>
-      <div class="ci">J<em>★</em></div>
-      <div class="ci f">J<em>★</em></div>
+      <div class="ci">★</div>
+      <svg class="jhat" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M6 27 C5 16 10 10 13.5 18 C14.5 7 22 6.5 22.5 15 C26.5 7.5 34 12 31.5 21 L29.5 27 Z" fill="#7A4FA3" stroke="#563683" stroke-width="1.3" stroke-linejoin="round"/>
+        <circle cx="6.2" cy="15.2" r="2.5" fill="#D9B865"/>
+        <circle cx="21.6" cy="7.6" r="2.5" fill="#D9B865"/>
+        <circle cx="33.6" cy="12.6" r="2.5" fill="#D9B865"/>
+        <rect x="7.5" y="27" width="25" height="4.6" rx="2.3" fill="#D9B865"/>
+      </svg>
+      <div class="ci f">★</div>
     </div>`;
   }
   const su = SUITS[c.suit];
@@ -1227,6 +1339,16 @@ function layoutHand(){
     ov = Math.max(-44, Math.min(-20, fit));
   }
   hand.style.setProperty("--ov", ov+"px");
+  // yelpaze: merkezden uzaklaştıkça hafif dön ve aşağı süz
+  const kids = [...hand.children];
+  const mid = (kids.length-1)/2;
+  const step = Math.min(2.6, 22/Math.max(kids.length,1));
+  const k = mid>0 ? 11/(mid*mid) : 0;
+  kids.forEach((el,i)=>{
+    const d = i-mid;
+    el.style.setProperty("--rot", (d*step).toFixed(2)+"deg");
+    el.style.setProperty("--ty", (d*d*k).toFixed(1)+"px");
+  });
 }
 
 let view = null; // null | "trophies"
@@ -1248,14 +1370,11 @@ function renderMenu(){
   const nextXp = lv.next ? `${PROFILE.xp} / ${lv.next.xp} XP` : `${PROFILE.xp} XP`;
   app.innerHTML = `
   <div class="screen menu">
-    <div class="crest">
-      <div class="cardback cb1${cbCls()}"></div>
-      <div class="cardback cb2${cbCls()}"></div>
-    </div>
+    <div class="medallion"><b>K</b><span class="lau">❦</span></div>
     <div>
       <h1 class="title">KASTET</h1>
       <div class="rule-line"><span>❖</span></div>
-      <div class="subtitle">İskambil Oyunu</div>
+      <div class="subtitle">Şark Kulübü İskambil Salonu</div>
     </div>
     <button class="profile-strip" id="profileBtn" aria-label="Ödüller ve profil">
       <div class="lvl-badge">${lv.i+1}</div>
@@ -1273,7 +1392,7 @@ function renderMenu(){
     <div class="name-fields">
       <div><label for="n0">Adın</label><input id="n0" maxlength="14" placeholder="Oyuncu" value="${esc(saved?.names?.[0]||"")}"></div>
     </div>
-    <button class="btn btn-gold" id="startBtn">Yeni Oyun</button>
+    <button class="btn btn-gold" id="startBtn">Masaya Otur</button>
     ${canResume?`<button class="btn btn-ghost" id="resumeBtn">Kaldığın Yerden Devam Et</button>`:""}
     <div class="btnrow">
       <button class="btn btn-ghost" id="trophyBtn">🏆 Ödüller</button>
@@ -1625,7 +1744,8 @@ function renderRoundEnd(){
   const leader = S.scores[0]===S.scores[1] ? null : (S.scores[0]<S.scores[1]?0:1);
   app.innerHTML = `
   <div class="screen menu">
-    <div class="panel" style="width:min(420px,92vw)">
+    <div class="panel ornate" style="width:min(420px,92vw)">
+      <div class="laurel">❦ ❦ ❦</div>
       <h2>${S.round}. El Bitti</h2>
       <div class="winner-banner">${title}</div>
       ${w!==null?`<div class="win-sub">−50 bonus kazandı${r.jokerDiscard?" · Jokeri atarak bitirdi — rakibin cezası 2 kat yazıldı!":""}</div>`:`<div class="win-sub">Deste bitti, iki oyuncu da pas geçti</div>`}
