@@ -9,8 +9,12 @@ workflows:
       node: 20
       xcode: latest
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.bivomedya.kastet
+        provisioning_profiles:
+          - kastet_appstore
+        certificates:
+          - "com.bivomedya.kastet"
+          - "Bivomedya Kastet"
+          - "Apple Developper Certf"
     scripts:
       - name: Bağımlılıkları kur
         script: npm install
