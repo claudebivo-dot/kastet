@@ -64,7 +64,7 @@ body::before{
 .screen{position:relative;z-index:1}
 
 /* ============ MENU ============ */
-.menu{justify-content:center;align-items:center;gap:26px;padding:32px 24px;text-align:center}
+.menu{justify-content:center;align-items:center;gap:26px;padding:calc(28px + var(--safe-t)) 24px calc(32px + var(--safe-b));text-align:center}
 .crest{width:88px;height:120px;position:relative;margin-bottom:2px}
 .crest .cardback{position:absolute;inset:0;border-radius:10px}
 .crest .cb1{transform:rotate(-10deg) translateX(-14px)}
@@ -129,7 +129,7 @@ h1.title{
 }
 
 /* ============ PASS SCREEN ============ */
-.pass{justify-content:center;align-items:center;gap:26px;padding:32px;text-align:center;cursor:pointer}
+.pass{justify-content:center;align-items:center;gap:26px;padding:calc(32px + var(--safe-t)) 32px calc(32px + var(--safe-b));text-align:center;cursor:pointer}
 .pass .bigback{width:min(190px,48vw);aspect-ratio:63/88;border-radius:16px}
 .pass .bigback::after{font-size:52px}
 .pass-name{font-family:var(--display);font-weight:700;font-size:32px;color:var(--brass-bright);letter-spacing:.06em}
@@ -142,9 +142,9 @@ h1.title{
 @media (prefers-reduced-motion:reduce){.pass-hint{animation:none}}
 
 /* ============ GAME SCREEN ============ */
-.game{padding:0}
+.game{padding:0;height:100dvh;overflow:hidden}
 .topbar{
-  display:flex;align-items:stretch;gap:8px;padding:10px 12px 8px;
+  display:flex;align-items:stretch;gap:8px;padding:calc(8px + var(--safe-t)) 12px 8px;
   background:linear-gradient(180deg,rgba(4,23,15,.85),rgba(4,23,15,0));
 }
 .pchip{
@@ -315,7 +315,7 @@ h1.title{
 .btnrow .btn{flex:1;width:auto;padding:13px 6px;font-size:14px}
 
 /* ödüller ekranı */
-.trscreen{padding:14px 14px 44px;gap:4px}
+.trscreen{padding:calc(12px + var(--safe-t)) 14px calc(44px + var(--safe-b));gap:4px}
 .tr-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .tr-head h2{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em;color:var(--brass-bright)}
 .backbtn{
@@ -516,7 +516,7 @@ const cardVal = id => CARDS[id].joker ? 25 : CARDS[id].rank; // A=1 ... K=13, Jo
 
 /* ================= STATE ================= */
 let S = null;
-let menuMode = (()=>{ try{ return localStorage.getItem("kastet-mode")||"2p"; }catch(e){ return "2p"; } })();
+let menuMode = "bot"; // 2 kişilik mod, online sürüme kadar menüden kaldırıldı (kod duruyor)
 let menuDiff = (()=>{ try{ return localStorage.getItem("kastet-diff")||"orta"; }catch(e){ return "orta"; } })();
 
 function freshMatch(names, mode, diff){
@@ -1010,31 +1010,60 @@ function botAppends(hand){
   return played;
 }
 
-// Zor bot: yerdeki perlerden "serbest" kartları söküp eldeki 2 kartla yeni per kurar
-function botSteals(hand){
-  const played = [];
-  let changed = true;
-  while(changed){
-    changed = false;
-    outer:
-    for(const m of S.table){
-      for(const f of [...m.cards]){
-        const rem = m.cards.filter(x=>x!==f);
-        if(rem.length<3 || !isValidMeld(rem)) continue; // f sökülünce per bozuluyorsa olmaz
-        const real = hand.filter(id=>!CARDS[id].joker);
-        for(let i=0;i<real.length;i++)
-          for(let j=i+1;j<real.length;j++){
-            if(isValidMeld([f, real[i], real[j]])){
-              m.cards = rem;
-              S.table.push({id:"m"+(S.meldSeq++), cards:[f, real[i], real[j]]});
-              [real[i], real[j]].forEach(id=>{ hand.splice(hand.indexOf(id),1); played.push(id); });
-              played.push(f);
-              changed = true;
-              break outer;
-            }
+// Zor bot: yerdeki perlerden "serbest" kartları söküp yeni per/küt kurar.
+// 1 serbest + elden 2 kart, ya da 2 serbest + elden 1 kart.
+function trySteal1(hand){
+  for(const m of S.table){
+    for(const f of [...m.cards]){
+      const rem = m.cards.filter(x=>x!==f);
+      if(rem.length<3 || !isValidMeld(rem)) continue; // f sökülünce per bozuluyorsa olmaz
+      const real = hand.filter(id=>!CARDS[id].joker);
+      for(let i=0;i<real.length;i++)
+        for(let j=i+1;j<real.length;j++){
+          if(isValidMeld([f, real[i], real[j]])){
+            m.cards = rem;
+            S.table.push({id:"m"+(S.meldSeq++), cards:[f, real[i], real[j]]});
+            [real[i], real[j]].forEach(id=>hand.splice(hand.indexOf(id),1));
+            return [real[i], real[j], f];
           }
+        }
+    }
+  }
+  return null;
+}
+function trySteal2(hand){
+  const real = hand.filter(id=>!CARDS[id].joker);
+  const entries = [];
+  S.table.forEach(m=>m.cards.forEach(f=>entries.push({f, m})));
+  for(let a=0; a<entries.length; a++){
+    for(let b=a+1; b<entries.length; b++){
+      const {f:f1, m:m1} = entries[a], {f:f2, m:m2} = entries[b];
+      const rem1 = m1.cards.filter(x=>x!==f1 && x!==f2);
+      const rem2 = m2.cards.filter(x=>x!==f1 && x!==f2);
+      if(rem1.length<3 || !isValidMeld(rem1)) continue;
+      if(m2!==m1 && (rem2.length<3 || !isValidMeld(rem2))) continue;
+      for(const h of real){
+        if(isValidMeld([f1, f2, h])){
+          m1.cards = rem1;
+          if(m2!==m1) m2.cards = rem2;
+          S.table.push({id:"m"+(S.meldSeq++), cards:[f1, f2, h]});
+          hand.splice(hand.indexOf(h),1);
+          return [h, f1, f2];
+        }
       }
     }
+  }
+  return null;
+}
+function botSteals(hand){
+  const played = [];
+  let go = true;
+  while(go){
+    go = false;
+    const r1 = trySteal1(hand);
+    if(r1){ played.push(...r1); go = true; continue; }
+    const r2 = trySteal2(hand);
+    if(r2){ played.push(...r2); go = true; }
   }
   return played;
 }
@@ -1220,18 +1249,12 @@ function renderMenu(){
       </div>
       ${PROFILE.newIds.length?`<span class="newdot"></span>`:""}
     </button>
-    <div class="mode-seg" role="radiogroup" aria-label="Oyun modu">
-      <button class="seg${menuMode==="bot"?" active":""}" data-mode="bot">🤖 Bota Karşı</button>
-      <button class="seg${menuMode==="2p"?" active":""}" data-mode="2p">👥 İki Kişilik</button>
-    </div>
-    ${menuMode==="bot"?`
     <div class="mode-seg" role="radiogroup" aria-label="Bot seviyesi">
       <button class="seg${menuDiff==="orta"?" active":""}" data-diff="orta">Orta</button>
       <button class="seg${menuDiff==="zor"?" active":""}" data-diff="zor">Zor</button>
-    </div>`:""}
+    </div>
     <div class="name-fields">
-      <div><label for="n0">${menuMode==="bot"?"Adın":"1. Oyuncu"}</label><input id="n0" maxlength="14" placeholder="Oyuncu 1" value="${esc(saved?.names?.[0]||"")}"></div>
-      <div id="n1wrap" class="${menuMode==="bot"?"hidden":""}"><label for="n1">2. Oyuncu</label><input id="n1" maxlength="14" placeholder="Oyuncu 2" value="${esc(/^Bot\b/.test(saved?.names?.[1]||"")?"":(saved?.names?.[1]||""))}"></div>
+      <div><label for="n0">Adın</label><input id="n0" maxlength="14" placeholder="Oyuncu" value="${esc(saved?.names?.[0]||"")}"></div>
     </div>
     <button class="btn btn-gold" id="startBtn">Yeni Oyun</button>
     ${canResume?`<button class="btn btn-ghost" id="resumeBtn">Kaldığın Yerden Devam Et</button>`:""}
@@ -1239,14 +1262,11 @@ function renderMenu(){
       <button class="btn btn-ghost" id="trophyBtn">🏆 Ödüller</button>
       <button class="btn btn-ghost" id="rulesBtn">Nasıl Oynanır?</button>
     </div>
-    <div class="menu-foot">Bota karşı tek başına ya da aynı cihazda iki kişi<br>İnternet gerekmez · Çift deste + 2 joker (106 kart)</div>
+    <div class="menu-foot">Zor bot yerdeki perleri söker — dikkat!<br>İnternet gerekmez · Çift deste + 2 joker (106 kart)</div>
   </div>`;
   app.querySelectorAll(".mode-seg .seg").forEach(b=>{
     b.onclick = ()=>{
-      if(b.dataset.mode){
-        menuMode = b.dataset.mode;
-        try{ localStorage.setItem("kastet-mode", menuMode); }catch(e){}
-      } else if(b.dataset.diff){
+      if(b.dataset.diff){
         menuDiff = b.dataset.diff;
         try{ localStorage.setItem("kastet-diff", menuDiff); }catch(e){}
       }
@@ -1254,9 +1274,9 @@ function renderMenu(){
     };
   });
   document.getElementById("startBtn").onclick = ()=>{
-    const n0 = document.getElementById("n0").value.trim() || "Oyuncu 1";
-    const n1 = menuMode==="bot" ? (menuDiff==="zor"?"Bot (Zor)":"Bot (Orta)") : (document.getElementById("n1").value.trim() || "Oyuncu 2");
-    S = freshMatch([n0,n1], menuMode, menuDiff);
+    const n0 = document.getElementById("n0").value.trim() || "Oyuncu";
+    const n1 = menuDiff==="zor" ? "Bot (Zor)" : "Bot (Orta)";
+    S = freshMatch([n0,n1], "bot", menuDiff);
     enterTurn();
   };
   if(canResume) document.getElementById("resumeBtn").onclick = ()=>{
