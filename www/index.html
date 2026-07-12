@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Kastet — İskambil Oyunu</title>
+<meta name="description" content="2 kişilik offline Kastet iskambil oyunu. Aynı cihazda sırayla oynayın.">
+<meta name="theme-color" content="#06231A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --felt-950:#04170F;
+  --felt-900:#06231A;
+  --felt-800:#0A2E21;
+  --felt-700:#0C3527;
+  --felt-600:#124531;
+  --brass:#C9A45C;
+  --brass-bright:#E7C98A;
+  --brass-dim:#8A7040;
+  --cream:#F8F3E6;
+  --cream-dim:#E8E0CC;
+  --ink:#20242A;
+  --red:#B3382E;
+  --ok:#4CAF7D;
+  --danger:#C05B4A;
+  --display:'Cinzel',Georgia,serif;
+  --body:'Manrope',system-ui,-apple-system,sans-serif;
+  --card-r:9px;
+  --shadow-card:0 2px 6px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.3);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{
+  font-family:var(--body);color:var(--cream);
+  background:
+    radial-gradient(120% 90% at 50% 0%,var(--felt-700) 0%,var(--felt-900) 55%,var(--felt-950) 100%);
+  background-attachment:fixed;
+  min-height:100dvh;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
+}
+button{font-family:var(--body);cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:var(--body)}
+.screen{min-height:100dvh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;padding-top:var(--safe-t)}
+.hidden{display:none !important}
+
+/* felt grain */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;
+  background-image:
+    repeating-linear-gradient(115deg,rgba(255,255,255,.012) 0 2px,transparent 2px 4px),
+    repeating-linear-gradient(25deg,rgba(0,0,0,.03) 0 3px,transparent 3px 6px);
+}
+.screen{position:relative;z-index:1}
+
+/* ============ MENU ============ */
+.menu{justify-content:center;align-items:center;gap:26px;padding:32px 24px;text-align:center}
+.crest{width:88px;height:120px;position:relative;margin-bottom:2px}
+.crest .cardback{position:absolute;inset:0;border-radius:10px}
+.crest .cb1{transform:rotate(-10deg) translateX(-14px)}
+.crest .cb2{transform:rotate(8deg) translateX(14px)}
+h1.title{
+  font-family:var(--display);font-weight:900;font-size:clamp(44px,13vw,58px);
+  letter-spacing:.14em;line-height:1;
+  background:linear-gradient(105deg,#8A6A2F 0%,#E7C98A 28%,#FFF3CE 50%,#E7C98A 72%,#8A6A2F 100%);
+  background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,.55));
+  animation:shimmer 5.5s ease-in-out infinite;
+}
+@keyframes shimmer{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+@media (prefers-reduced-motion:reduce){h1.title{animation:none}}
+.subtitle{font-size:13px;letter-spacing:.32em;color:var(--brass);text-transform:uppercase;font-weight:600}
+.rule-line{display:flex;align-items:center;gap:12px;width:min(280px,70vw);opacity:.9}
+.rule-line::before,.rule-line::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--brass-dim))}
+.rule-line::after{background:linear-gradient(90deg,var(--brass-dim),transparent)}
+.rule-line span{color:var(--brass);font-size:14px}
+.name-fields{display:flex;flex-direction:column;gap:12px;width:min(300px,80vw)}
+.name-fields label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);text-align:left;display:block;margin-bottom:5px;font-weight:700}
+.name-fields input{
+  width:100%;padding:13px 16px;border-radius:12px;font-size:16px;font-weight:600;
+  background:rgba(0,0,0,.32);border:1px solid rgba(201,164,92,.35);color:var(--cream);
+  outline:none;transition:border-color .2s;
+}
+.name-fields input:focus{border-color:var(--brass-bright)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:15px 30px;border-radius:14px;font-size:16px;font-weight:800;letter-spacing:.04em;
+  transition:transform .12s,box-shadow .2s,opacity .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible{outline:2px solid var(--brass-bright);outline-offset:2px}
+.btn-gold{
+  background:linear-gradient(180deg,var(--brass-bright),var(--brass) 55%,#A9843F);
+  color:#241B08;box-shadow:0 4px 14px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.5);
+  width:min(300px,80vw);
+}
+.btn-ghost{
+  background:rgba(0,0,0,.28);border:1px solid rgba(201,164,92,.4);color:var(--brass-bright);
+  width:min(300px,80vw);
+}
+.btn[disabled]{opacity:.38;pointer-events:none}
+.menu-foot{font-size:11.5px;color:rgba(248,243,230,.4);margin-top:6px;line-height:1.6}
+
+/* ============ CARD BACK (kilim) ============ */
+.cardback{
+  background:
+    radial-gradient(60% 45% at 50% 50%,rgba(231,201,138,.16),transparent 70%),
+    repeating-linear-gradient(45deg,#123A2B 0 7px,#0D2E22 7px 14px),
+    repeating-linear-gradient(-45deg,rgba(201,164,92,.14) 0 7px,transparent 7px 14px),
+    #0D2E22;
+  border:2px solid var(--brass-dim);
+  box-shadow:var(--shadow-card),inset 0 0 0 4px rgba(6,35,26,.9),inset 0 0 0 5px rgba(201,164,92,.35);
+  position:relative;
+}
+.cardback::after{
+  content:"❖";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--brass);font-size:26px;text-shadow:0 0 10px rgba(201,164,92,.5);
+}
+
+/* ============ PASS SCREEN ============ */
+.pass{justify-content:center;align-items:center;gap:26px;padding:32px;text-align:center;cursor:pointer}
+.pass .bigback{width:min(190px,48vw);aspect-ratio:63/88;border-radius:16px}
+.pass .bigback::after{font-size:52px}
+.pass-name{font-family:var(--display);font-weight:700;font-size:32px;color:var(--brass-bright);letter-spacing:.06em}
+.pass-hint{font-size:14px;color:rgba(248,243,230,.65);animation:pulse 2s ease-in-out infinite}
+.pass-last{
+  font-size:13px;color:var(--cream-dim);background:rgba(0,0,0,.3);
+  border:1px solid rgba(201,164,92,.25);border-radius:999px;padding:8px 18px;max-width:88vw;
+}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.pass-hint{animation:none}}
+
+/* ============ GAME SCREEN ============ */
+.game{padding:0}
+.topbar{
+  display:flex;align-items:stretch;gap:8px;padding:10px 12px 8px;
+  background:linear-gradient(180deg,rgba(4,23,15,.85),rgba(4,23,15,0));
+}
+.pchip{
+  flex:1;display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.18);min-width:0;
+}
+.pchip.active{border-color:var(--brass);box-shadow:0 0 0 1px rgba(201,164,92,.35),0 0 14px rgba(201,164,92,.12)}
+.pchip .pname{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pchip.active .pname{color:var(--brass-bright)}
+.pchip .pmeta{font-size:11px;color:rgba(248,243,230,.55);display:flex;gap:8px}
+.centerinfo{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-width:64px;
+}
+.deckcount{
+  font-family:var(--display);font-weight:700;font-size:19px;color:var(--brass-bright);
+  display:flex;align-items:center;gap:6px;
+}
+.deckcount .mini-back{width:15px;height:21px;border-radius:3px;display:inline-block}
+.roundlbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,164,92,.8);font-weight:700}
+
+/* table (melds) */
+.tablewrap{flex:1;overflow-y:auto;padding:6px 12px 12px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+.table-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  color:rgba(248,243,230,.4);font-size:13.5px;text-align:center;padding:0 30px;line-height:1.6;
+  border:1.5px dashed rgba(201,164,92,.25);border-radius:16px;margin:4px 2px;
+}
+.table-empty b{color:var(--brass);font-weight:700}
+.melds{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
+.meld{
+  display:flex;padding:7px 8px;border-radius:12px;position:relative;
+  background:rgba(0,0,0,.26);border:1px solid rgba(201,164,92,.22);
+  transition:border-color .15s, box-shadow .15s;
+}
+.meld.droptarget{border-color:var(--brass-bright);box-shadow:0 0 0 1.5px rgba(231,201,138,.5);cursor:pointer}
+.meld.invalid{border-color:var(--danger);box-shadow:0 0 0 1px rgba(192,91,74,.5)}
+.newmeld-btn{
+  align-self:flex-start;
+  padding:12px 16px;border-radius:12px;border:1.5px dashed var(--brass);
+  color:var(--brass-bright);font-weight:700;font-size:13px;background:rgba(201,164,92,.07);
+}
+.newmeld-btn:active{transform:scale(.97)}
+
+/* cards — minimal premium yüz: büyük merkez harf + köşe indeksleri */
+.card{
+  width:44px;aspect-ratio:63/88;border-radius:var(--card-r);
+  background:linear-gradient(165deg,#FFFFFF,#FBF7EE 58%,#F0EADA);
+  box-shadow:var(--shadow-card);
+  position:relative;flex-shrink:0;
+  border:1px solid rgba(0,0,0,.18);
+  transition:transform .14s,box-shadow .14s;
+  color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+}
+.card.red{color:#C2242E}
+.card .ci{
+  position:absolute;top:4px;left:5px;text-align:center;
+  font-family:var(--display);font-weight:900;font-size:13px;line-height:1;
+}
+.card .ci em{font-style:normal;display:block;font-size:12px;margin-top:1.5px;font-family:var(--body)}
+.card .ci.f{top:auto;left:auto;right:5px;bottom:4px;transform:rotate(180deg)}
+.card.sel{
+  transform:translateY(-9px);
+  box-shadow:0 0 0 2px var(--brass-bright),0 8px 18px rgba(0,0,0,.55);
+}
+.meld .card{width:37px}
+.meld .card+.card{margin-left:-13px}
+.meld .card.sel{transform:translateY(-6px)}
+
+/* hand */
+.handzone{
+  background:linear-gradient(180deg,rgba(4,23,15,0),rgba(4,23,15,.88) 30%);
+  padding:14px 0 calc(10px + var(--safe-b));
+  border-top:1px solid rgba(201,164,92,.15);
+}
+.hand-head{display:flex;align-items:center;justify-content:space-between;padding:0 14px 9px}
+.hand-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);font-weight:800}
+.sortbtn{
+  font-size:11.5px;font-weight:700;color:var(--cream-dim);padding:5px 12px;border-radius:999px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.25);
+}
+.hand{
+  display:flex;overflow-x:auto;padding:12px 16px 6px;gap:0;
+  scrollbar-width:none;
+}
+.hand::-webkit-scrollbar{display:none}
+.hand .card{width:56px}
+.hand .card+.card{margin-left:var(--ov,-24px)}
+.hand .card .ci{font-size:17px;top:5px;left:6px}
+.hand .card .ci em{font-size:15.5px;margin-top:2px}
+.hand .card.fresh{box-shadow:0 0 0 2px var(--ok),var(--shadow-card)}
+
+/* action bar */
+.actions{display:flex;gap:8px;padding:8px 12px 4px}
+.abtn{
+  flex:1;padding:13px 6px;border-radius:12px;font-weight:800;font-size:13.5px;letter-spacing:.02em;
+  transition:transform .12s,opacity .2s;
+}
+.abtn:active{transform:scale(.97)}
+.abtn[disabled]{opacity:.35;pointer-events:none}
+.abtn-draw{background:rgba(0,0,0,.35);border:1px solid rgba(201,164,92,.45);color:var(--brass-bright)}
+.abtn-ok{background:linear-gradient(180deg,var(--brass-bright),var(--brass) 55%,#A9843F);color:#241B08;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.abtn-ok:not([disabled]){box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 18px rgba(201,164,92,.35)}
+.pchip{backdrop-filter:blur(6px)}
+.abtn-undo{background:rgba(0,0,0,.35);border:1px solid rgba(192,91,74,.55);color:#E8A79B}
+.statusline{
+  min-height:20px;padding:2px 16px 0;text-align:center;font-size:12.5px;color:rgba(248,243,230,.62);
+}
+.statusline.err{color:#E8A79B}
+.statusline.good{color:#9AD7B5}
+
+/* mode seçici */
+.mode-seg{
+  display:flex;gap:5px;padding:5px;border-radius:14px;width:min(300px,80vw);
+  background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.3);
+}
+.mode-seg .seg{
+  flex:1;padding:11px 6px;border-radius:10px;font-weight:800;font-size:13.5px;
+  color:var(--cream-dim);transition:background .15s,color .15s;
+}
+.mode-seg .seg.active{
+  background:linear-gradient(180deg,var(--brass-bright),var(--brass) 60%,#A9843F);
+  color:#241B08;box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+/* joker */
+.card.joker{color:#7A4FA3}
+
+/* rakip hamlesi parlatma (7 sn) */
+@keyframes glowPulse{
+  0%  {box-shadow:0 0 0 2.5px var(--brass-bright),0 0 20px 5px rgba(231,201,138,.8),var(--shadow-card)}
+  60% {box-shadow:0 0 0 2.5px var(--brass-bright),0 0 14px 3px rgba(231,201,138,.55),var(--shadow-card)}
+  100%{box-shadow:var(--shadow-card)}
+}
+.card.glow{animation:glowPulse 7s ease-out forwards}
+@media (prefers-reduced-motion:reduce){.card.glow{animation:none;box-shadow:0 0 0 2px var(--brass-bright),var(--shadow-card)}}
+
+/* elde sürükleme */
+.hand .card{touch-action:none}
+.card.drag{
+  transform:translateY(-16px) scale(1.08);z-index:6;
+  box-shadow:0 0 0 2px var(--brass-bright),0 16px 28px rgba(0,0,0,.65);
+}
+
+/* ============ PROFİL / ÖDÜLLER ============ */
+.profile-strip{
+  display:flex;align-items:center;gap:12px;width:min(300px,80vw);
+  padding:11px 14px;border-radius:14px;cursor:pointer;text-align:left;
+  background:rgba(0,0,0,.32);border:1px solid rgba(201,164,92,.32);
+  transition:border-color .15s;
+}
+.profile-strip:active{transform:scale(.98)}
+.lvl-badge{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(180deg,var(--brass-bright),#A9843F);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:900;color:#241B08;font-size:17px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 3px 8px rgba(0,0,0,.4);
+}
+.p-info{flex:1;min-width:0}
+.p-title{font-weight:800;font-size:14px;color:var(--brass-bright)}
+.p-sub{font-size:10.5px;color:rgba(248,243,230,.55);margin-top:1px}
+.xpbar{height:5px;border-radius:99px;background:rgba(255,255,255,.09);margin-top:6px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--brass-bright));border-radius:99px}
+.newdot{width:9px;height:9px;border-radius:50%;background:#F0658A;box-shadow:0 0 8px rgba(240,101,138,.8);flex-shrink:0}
+.btnrow{display:flex;gap:10px;width:min(300px,80vw)}
+.btnrow .btn{flex:1;width:auto;padding:13px 6px;font-size:14px}
+
+/* ödüller ekranı */
+.trscreen{padding:14px 14px 44px;gap:4px}
+.tr-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.tr-head h2{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em;color:var(--brass-bright)}
+.backbtn{
+  width:40px;height:40px;border-radius:12px;font-size:20px;flex-shrink:0;
+  background:rgba(0,0,0,.3);border:1px solid rgba(201,164,92,.35);color:var(--brass-bright);
+}
+.profile-card{
+  display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:16px;
+  background:linear-gradient(160deg,rgba(201,164,92,.14),rgba(0,0,0,.35));
+  border:1px solid rgba(201,164,92,.4);margin-bottom:8px;
+}
+.tr-group-head{display:flex;justify-content:space-between;align-items:center;margin:16px 0 9px;gap:10px}
+.tr-group-head h3{font-size:16px;font-weight:800}
+.tr-group-head small{display:block;font-size:11px;color:rgba(248,243,230,.5);font-weight:600;margin-top:2px}
+.tr-pill{
+  font-size:11px;font-weight:700;padding:6px 11px;border-radius:10px;flex-shrink:0;
+  background:rgba(0,0,0,.35);border:1px solid rgba(201,164,92,.25);color:var(--cream-dim);
+  font-variant-numeric:tabular-nums;
+}
+.tr-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{
+  position:relative;padding:15px 4px 9px;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.06);
+}
+.tile.earned{border-color:rgba(201,164,92,.5);background:linear-gradient(180deg,rgba(201,164,92,.10),rgba(0,0,0,.32))}
+.tile.newt{border-color:rgba(105,201,130,.75)}
+.tile svg{width:42px;height:42px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+.tlabel{font-size:10.5px;color:var(--cream-dim);text-align:center;font-weight:700}
+.tile:not(.earned) .tlabel{color:rgba(248,243,230,.35)}
+.newpill{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(90deg,#E85D8A,#F0925C);white-space:nowrap;
+  font-size:9px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:999px;color:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+.cos-h{font-size:16px;font-weight:800;margin:22px 0 10px}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;position:relative}
+.swatch .prev{width:100%;aspect-ratio:63/88;border-radius:10px}
+.swatch .feltprev{width:100%;aspect-ratio:63/50;border-radius:10px;border:2px solid rgba(201,164,92,.4)}
+.swatch.sel .prev,.swatch.sel .feltprev{outline:2.5px solid var(--brass-bright);outline-offset:2px}
+.swatch .sname{font-size:11px;font-weight:700;color:var(--cream-dim)}
+.swatch.locked .prev,.swatch.locked .feltprev{filter:grayscale(.9) brightness(.55)}
+.locknote{font-size:8.5px;color:rgba(248,243,230,.45);text-align:center;line-height:1.3}
+.f-yesil{background:radial-gradient(90% 80% at 50% 20%,#14523C,#06231A)}
+.f-gece{background:radial-gradient(90% 80% at 50% 20%,#123362,#061224)}
+.f-bordo{background:radial-gradient(90% 80% at 50% 20%,#5A1620,#240709)}
+.f-antrasit{background:radial-gradient(90% 80% at 50% 20%,#2A2F38,#101216)}
+
+/* kupa bildirimi */
+.toast{
+  position:fixed;left:50%;top:calc(12px + var(--safe-t));transform:translateX(-50%);z-index:90;
+  display:flex;align-items:center;gap:11px;padding:10px 18px 10px 12px;border-radius:14px;
+  background:linear-gradient(180deg,var(--felt-700),var(--felt-900));
+  border:1px solid var(--brass);box-shadow:0 10px 30px rgba(0,0,0,.6);
+  animation:toastIn .35s cubic-bezier(.2,.9,.3,1.2),toastOut .4s 3.6s forwards;
+}
+.toast svg{width:36px;height:36px}
+.toast b{display:block;font-size:12.5px;color:var(--brass-bright)}
+.toast small{font-size:11px;color:var(--cream-dim)}
+@keyframes toastIn{from{transform:translate(-50%,-70px)}to{transform:translate(-50%,0)}}
+@keyframes toastOut{to{transform:translate(-50%,-80px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
+
+/* el sonu ödül alanı */
+.rewards{display:flex;flex-direction:column;align-items:center;gap:9px;margin:4px 0 10px}
+.xp-chip{
+  font-weight:800;font-size:14px;padding:7px 18px;border-radius:999px;
+  background:rgba(201,164,92,.14);border:1px solid var(--brass);color:var(--brass-bright);
+}
+.lvlup{font-family:var(--display);font-weight:700;font-size:16px;color:var(--brass-bright)}
+.rew-tile{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;color:var(--cream-dim)}
+.rew-tile svg{width:30px;height:30px}
+
+/* ============ TEMALAR ============ */
+body[data-felt="gece"]{--felt-950:#030B16;--felt-900:#061224;--felt-800:#091A33;--felt-700:#0C2140;--felt-600:#11294F}
+body[data-felt="bordo"]{--felt-950:#160406;--felt-900:#240709;--felt-800:#300A0D;--felt-700:#3D0E12;--felt-600:#4C1218}
+body[data-felt="antrasit"]{--felt-950:#0A0B0D;--felt-900:#101216;--felt-800:#15181D;--felt-700:#1B1E24;--felt-600:#23272F}
+
+.cardback.cb-gece{
+  background:
+    radial-gradient(60% 45% at 50% 50%,rgba(185,203,228,.18),transparent 70%),
+    repeating-linear-gradient(45deg,#152641 0 7px,#0E1B30 7px 14px),
+    repeating-linear-gradient(-45deg,rgba(143,165,196,.16) 0 7px,transparent 7px 14px),#0E1B30;
+  border-color:#8FA5C4;
+  box-shadow:var(--shadow-card),inset 0 0 0 4px rgba(6,14,28,.9),inset 0 0 0 5px rgba(143,165,196,.4);
+}
+.cardback.cb-gece::after{color:#B9CBE4;text-shadow:0 0 10px rgba(143,165,196,.5)}
+.cardback.cb-bordo{
+  background:
+    radial-gradient(60% 45% at 50% 50%,rgba(231,201,138,.16),transparent 70%),
+    repeating-linear-gradient(45deg,#4A1218 0 7px,#33090E 7px 14px),
+    repeating-linear-gradient(-45deg,rgba(201,164,92,.16) 0 7px,transparent 7px 14px),#33090E;
+}
+.cardback.cb-zumrut{
+  background:
+    radial-gradient(60% 45% at 50% 50%,rgba(140,240,190,.14),transparent 70%),
+    repeating-linear-gradient(90deg,#0E4A34 0 5px,#093524 5px 10px),
+    repeating-linear-gradient(0deg,rgba(120,220,170,.12) 0 5px,transparent 5px 10px),#093524;
+  border-color:#5FBF93;
+  box-shadow:var(--shadow-card),inset 0 0 0 4px rgba(4,26,17,.9),inset 0 0 0 5px rgba(95,191,147,.4);
+}
+.cardback.cb-zumrut::after{color:#8CF0BE;text-shadow:0 0 10px rgba(95,191,147,.6)}
+.cardback.cb-onyx{
+  background:
+    radial-gradient(60% 45% at 50% 50%,rgba(231,201,138,.2),transparent 65%),
+    repeating-conic-gradient(#15161A 0 12deg,#0B0C0F 12deg 24deg);
+  border-color:var(--brass-bright);
+  box-shadow:var(--shadow-card),inset 0 0 0 4px rgba(0,0,0,.95),inset 0 0 0 5px rgba(231,201,138,.5);
+}
+.cardback.cb-onyx::after{color:var(--brass-bright)}
+
+/* ============ MODALS ============ */
+.overlay{
+  position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+  background:rgba(3,14,9,.78);backdrop-filter:blur(4px);padding:22px;
+}
+.panel{
+  width:min(420px,100%);max-height:84dvh;overflow-y:auto;
+  background:linear-gradient(180deg,var(--felt-800),var(--felt-900));
+  border:1px solid rgba(201,164,92,.4);border-radius:20px;padding:26px 24px;
+  box-shadow:0 22px 60px rgba(0,0,0,.7);
+}
+.panel h2{
+  font-family:var(--display);font-weight:700;color:var(--brass-bright);
+  font-size:24px;letter-spacing:.08em;text-align:center;margin-bottom:16px;
+}
+.panel .btn{width:100%;margin-top:10px}
+.rules-body{font-size:14px;line-height:1.75;color:var(--cream-dim)}
+.rules-body h3{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin:16px 0 6px;font-weight:800}
+.rules-body b{color:var(--cream)}
+.rules-body ul{padding-left:18px}
+.rules-body li{margin-bottom:5px}
+.score-table{width:100%;border-collapse:collapse;margin:6px 0 12px}
+.score-table td{padding:9px 4px;border-bottom:1px solid rgba(201,164,92,.16);font-size:14.5px}
+.score-table td:last-child{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.score-table .total td{border-bottom:none;color:var(--brass-bright);font-weight:800}
+.winner-banner{
+  text-align:center;font-family:var(--display);font-size:19px;font-weight:700;
+  color:var(--brass-bright);margin-bottom:14px;line-height:1.5;
+}
+.win-sub{text-align:center;font-size:13px;color:var(--cream-dim);margin-bottom:8px}
+
+/* confetti */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.confetti i{
+  position:absolute;top:-12px;width:8px;height:13px;opacity:.95;
+  animation:fall linear forwards;
+}
+@keyframes fall{to{transform:translateY(105dvh) rotate(660deg);opacity:.5}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}
+
+@media (min-width:521px){
+  .screen{border-left:1px solid rgba(201,164,92,.12);border-right:1px solid rgba(201,164,92,.12)}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+"use strict";
+/* ================= DATA ================= */
+const SUITS = [
+  {sym:"♠", red:false, name:"Maça"},
+  {sym:"♣", red:false, name:"Sinek"},
+  {sym:"♥", red:true,  name:"Kupa"},
+  {sym:"♦", red:true,  name:"Karo"},
+];
+const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+const SAVE_KEY = "kastet-save-v1";
+
+let CARDS = {}; // id -> {id, rank(1-13), suit(0-3)}
+function buildDeck(){
+  CARDS = {};
+  const ids = [];
+  for(let d=0; d<2; d++)
+    for(let s=0; s<4; s++)
+      for(let r=1; r<=13; r++){
+        const id = `${d}-${s}-${r}`;
+        CARDS[id] = {id, rank:r, suit:s};
+        ids.push(id);
+      }
+  for(let j=0; j<2; j++){ // 2 joker
+    const id = `j-${j}`;
+    CARDS[id] = {id, rank:0, suit:-1, joker:true};
+    ids.push(id);
+  }
+  // Fisher–Yates
+  for(let i=ids.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [ids[i],ids[j]] = [ids[j],ids[i]];
+  }
+  return ids;
+}
+const cardVal = id => CARDS[id].joker ? 25 : CARDS[id].rank; // A=1 ... K=13, Joker=25
+
+/* ================= STATE ================= */
+let S = null;
+let menuMode = (()=>{ try{ return localStorage.getItem("kastet-mode")||"2p"; }catch(e){ return "2p"; } })();
+let menuDiff = (()=>{ try{ return localStorage.getItem("kastet-diff")||"orta"; }catch(e){ return "orta"; } })();
+
+function freshMatch(names, mode, diff){
+  return {
+    screen:"pass",
+    names,
+    mode, // "2p" | "bot"
+    diff, // "orta" | "zor"
+    scores:[0,0],
+    round:1,
+    ...freshRound(0),
+  };
+}
+// joker'i her sıralamada sona at
+const sortKey = id => { const c=CARDS[id]; return c.joker ? {s:9,r:99} : {s:c.suit,r:c.rank}; };
+function freshRound(starter){
+  const deck = buildDeck();
+  const hands = [deck.splice(0,14), deck.splice(0,14)];
+  const bySuit = (a,b)=>{ const A=sortKey(a),B=sortKey(b); return (A.s-B.s)||(A.r-B.r); };
+  hands.forEach(h=>h.sort(bySuit));
+  return {
+    deck, hands,
+    table:[],            // [{id, cards:[cardId]}]
+    turn:starter,
+    starter,
+    opened:false,        // global: ilk açılış yapıldı mı
+    passes:0,
+    lastAction:"",
+    snapshot:null,       // turn-start snapshot for undo
+    sel:[],              // selected card ids
+    meldSeq:1,
+    sortMode:"suit",
+    freshCard:null,      // son çekilen kart (vurgu)
+    status:null,         // {msg, cls}
+    lastPlayed:null,     // rakibin son oynadığı kartlar (parlatma)
+    lastPlayedBy:null,
+    lastPlayedAt:null,
+    playedMeld:[false,false], // bu elde per açtı mı (Şimşek kupası)
+  };
+}
+
+function save(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+}
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || !s.names || !s.hands) return null;
+    if(!s.mode) s.mode = "2p";
+    if(!s.diff) s.diff = "orta";
+    if(!s.playedMeld) s.playedMeld = [false,false];
+    return s;
+  }catch(e){ return null; }
+}
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+
+/* ================= PROFİL / ÖDÜL SİSTEMİ ================= */
+const PROFILE_KEY = "kastet-profile-v1";
+const TIER_NAMES = ["Bronz","Gümüş","Altın","Elmas"];
+const TROPHIES = [
+  {id:"el",    name:"Emektar",     desc:"El oyna",                       unit:"el",    stat:"hands",     tiers:[10,50,150,500]},
+  {id:"win",   name:"Galip",       desc:"El kazan",                      unit:"zafer", stat:"wins",      tiers:[1,10,30,100]},
+  {id:"streak",name:"Seri Galip",  desc:"Üst üste el kazan",             unit:"seri",  stat:"bestStreak",tiers:[2,3,5,8]},
+  {id:"per",   name:"Per Ustası",  desc:"Per aç",                        unit:"per",   stat:"pers",      tiers:[10,50,200,500]},
+  {id:"sok",   name:"Sökücü",      desc:"Yerdeki perleri bozup yeniden kur", unit:"söküm", stat:"steals", tiers:[1,10,40]},
+  {id:"joker", name:"Jokerbaz",    desc:"Jokeri atarak bitir (2 kat ceza)", unit:"bitiş", stat:"jokerWins", tiers:[1,3,10]},
+  {id:"zor",   name:"Usta Avcısı", desc:"Zor botu yen",                  unit:"zafer", stat:"zorWins",   tiers:[1,5,20]},
+  {id:"simsek",name:"Şimşek",      desc:"Rakip hiç per açamadan kazan",  unit:"bitiş", stat:"lightning", tiers:[1,5]},
+];
+const LEVELS = [
+  {xp:0,title:"Çırak"},{xp:150,title:"Çırak II"},{xp:400,title:"Kalfa"},{xp:800,title:"Kalfa II"},
+  {xp:1400,title:"Usta"},{xp:2200,title:"Usta II"},{xp:3200,title:"Şahbaz"},{xp:5000,title:"Kastet Piri"},
+];
+const BACKS = [
+  {id:"kilim", name:"Kilim",  req:null},
+  {id:"gece",  name:"Gece",   req:{lvl:2}},
+  {id:"bordo", name:"Bordo",  req:{trophy:"win",tier:1}},
+  {id:"zumrut",name:"Zümrüt", req:{trophy:"joker",tier:0}},
+  {id:"onyx",  name:"Oniks",  req:{lvl:6}},
+];
+const FELTS = [
+  {id:"yesil",   name:"Yeşil Çuha",  req:null},
+  {id:"gece",    name:"Gece Mavisi", req:{lvl:4}},
+  {id:"bordo",   name:"Bordo Çuha",  req:{trophy:"win",tier:2}},
+  {id:"antrasit",name:"Antrasit",    req:{trophy:"zor",tier:0}},
+];
+function loadProfile(){
+  try{
+    const p = JSON.parse(localStorage.getItem(PROFILE_KEY));
+    if(p && p.stats) return p;
+  }catch(e){}
+  return {xp:0,
+    stats:{hands:0,wins:0,streak:0,bestStreak:0,pers:0,steals:0,jokerWins:0,zorWins:0,lightning:0},
+    trophies:{}, newIds:[], back:"kilim", felt:"yesil"};
+}
+let PROFILE = loadProfile();
+function saveProfile(){ try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(PROFILE)); }catch(e){} }
+function levelOf(xp){
+  let i=0;
+  for(let k=0;k<LEVELS.length;k++) if(xp>=LEVELS[k].xp) i=k;
+  const next = LEVELS[i+1]||null;
+  return {i, title:LEVELS[i].title, next, prog: next ? (xp-LEVELS[i].xp)/(next.xp-LEVELS[i].xp) : 1};
+}
+// yeni geçilen kademeleri döndürür; kademe başına +30 XP
+function checkTrophies(){
+  const earned=[];
+  for(const t of TROPHIES){
+    const have = PROFILE.trophies[t.id]||0;
+    const val = PROFILE.stats[t.stat]||0;
+    let now=0;
+    t.tiers.forEach((th,ix)=>{ if(val>=th) now=ix+1; });
+    if(now>have){
+      for(let k=have;k<now;k++){
+        earned.push({t, tier:k});
+        if(!PROFILE.newIds.includes(t.id+":"+k)) PROFILE.newIds.push(t.id+":"+k);
+      }
+      PROFILE.trophies[t.id]=now;
+    }
+  }
+  PROFILE.xp += earned.length*30;
+  return earned;
+}
+function reqMet(req){
+  if(!req) return true;
+  if(req.lvl!=null) return levelOf(PROFILE.xp).i >= req.lvl;
+  if(req.trophy) return (PROFILE.trophies[req.trophy]||0) > req.tier;
+  return false;
+}
+function reqText(req){
+  if(!req) return "";
+  if(req.lvl!=null) return `${LEVELS[req.lvl].title} unvanı`;
+  if(req.trophy){ const t=TROPHIES.find(x=>x.id===req.trophy); return `${t.name} ${TIER_NAMES[req.tier]}`; }
+  return "";
+}
+function grantRoundRewards(winner, jokerDiscard){
+  const beforeLvl = levelOf(PROFILE.xp).i;
+  const s = PROFILE.stats;
+  s.hands++;
+  let xp = 10;
+  if(winner===0){
+    s.wins++; s.streak++; s.bestStreak=Math.max(s.bestStreak,s.streak);
+    xp += 25;
+    if(S.mode==="bot" && S.diff==="zor"){ s.zorWins++; xp += 15; }
+    if(jokerDiscard){ s.jokerWins++; xp += 40; }
+    if(S.playedMeld && !S.playedMeld[1]){ s.lightning++; xp += 20; }
+  } else if(winner===1){ s.streak = 0; }
+  const newT = checkTrophies();
+  PROFILE.xp += xp;
+  const after = levelOf(PROFILE.xp);
+  saveProfile();
+  return {xp: xp + newT.length*30, newT, levelUp: after.i>beforeLvl ? after.title : null};
+}
+let __uid=0;
+function badgeSVG(tierIdx, earned){
+  const uid = "bg"+(__uid++);
+  const G = earned
+    ? [["#8A5A2B","#D89B5E"],["#8F98A5","#E4E9F0"],["#B88A2E","#F2D687"],["#2E86B0","#8FDCF7"]][Math.min(tierIdx,3)]
+    : ["#23262B","#3A3F47"];
+  const star = earned ? "#FFF6E3" : "#14161A";
+  return `<svg viewBox="0 0 64 64" aria-hidden="true">
+    <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${G[1]}"/><stop offset="1" stop-color="${G[0]}"/>
+    </linearGradient></defs>
+    <path d="M32 4 L55 12 V33 C55 47 45 56 32 61 C19 56 9 47 9 33 V12 Z" fill="url(#${uid})" stroke="rgba(0,0,0,.35)" stroke-width="2"/>
+    <path d="M32 9 L50 15.5 V33 C50 44 42 51.5 32 55.5 C22 51.5 14 44 14 33 V15.5 Z" fill="rgba(0,0,0,.22)"/>
+    <path d="M32 20 l3.6 7.4 8.2 1.2 -5.9 5.7 1.4 8.1 -7.3 -3.8 -7.3 3.8 1.4 -8.1 -5.9 -5.7 8.2 -1.2 Z" fill="${star}" opacity="${earned?1:.45}"/>
+  </svg>`;
+}
+function queueToasts(list){
+  list.forEach((e,ix)=>setTimeout(()=>{
+    const d=document.createElement("div");
+    d.className="toast";
+    d.innerHTML=`${badgeSVG(e.tier,true)}<div><b>Kupa kazandın!</b><small>${e.t.name} · ${TIER_NAMES[e.tier]}</small></div>`;
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),4300);
+  }, ix*1100));
+}
+const cbCls = () => PROFILE.back && PROFILE.back!=="kilim" ? " cb-"+PROFILE.back : "";
+function applyFelt(){ document.body.dataset.felt = PROFILE.felt || "yesil"; }
+
+/* ================= RULES / VALIDATION ================= */
+function isSetC(cs){
+  if(cs.length<3 || cs.length>4) return false;
+  if(cs.some(c=>c.joker)) return false;
+  const r = cs[0].rank;
+  if(!cs.every(c=>c.rank===r)) return false;
+  const suits = cs.map(c=>c.suit);
+  return new Set(suits).size === suits.length;
+}
+function isRunC(cs){
+  if(cs.length<3) return false;
+  if(cs.some(c=>c.joker)) return false;
+  const s = cs[0].suit;
+  if(!cs.every(c=>c.suit===s)) return false;
+  const ranks = cs.map(c=>c.rank).sort((a,b)=>a-b);
+  if(new Set(ranks).size !== ranks.length) return false;
+  // As yalnızca küçük olarak kullanılır (A-2-3...); Q-K-A geçersiz
+  return ranks.every((v,i)=> i===0 || v===ranks[i-1]+1);
+}
+// Bitiriş peri: tam 1 joker + 2 kart; joker herhangi bir kartın yerine geçebilmeli
+function isJokerFinishMeld(cs){
+  const jok = cs.filter(c=>c.joker), real = cs.filter(c=>!c.joker);
+  if(jok.length!==1 || real.length!==2) return false;
+  for(let s=0; s<4; s++)
+    for(let r=1; r<=13; r++){
+      const sub = {rank:r, suit:s};
+      if(isSetC([...real,sub]) || isRunC([...real,sub])) return true;
+    }
+  return false;
+}
+function isValidMeld(ids){
+  const cs = ids.map(id=>CARDS[id]);
+  if(cs.some(c=>c.joker)) return isJokerFinishMeld(cs);
+  return isSetC(cs) || isRunC(cs);
+}
+const isSet = ids => isSetC(ids.map(id=>CARDS[id]));
+const isRun = ids => isRunC(ids.map(id=>CARDS[id]));
+
+function sortMeldForDisplay(cards){
+  const jokers = cards.filter(id=>CARDS[id].joker);
+  const arr = cards.filter(id=>!CARDS[id].joker);
+  if(isSet(arr)) return [...arr.sort((a,b)=>CARDS[a].suit-CARDS[b].suit), ...jokers];
+  arr.sort((a,b)=>CARDS[a].rank-CARDS[b].rank);
+  return [...arr, ...jokers];
+}
+
+/* ================= TURN LOGIC ================= */
+function takeSnapshot(){
+  S.snapshot = {
+    deckLen: S.deck.length,
+    hand: [...S.hands[S.turn]],
+    table: S.table.map(m=>({id:m.id, cards:[...m.cards]})),
+    opened: S.opened,
+  };
+}
+function hasStagedChanges(){
+  if(!S.snapshot) return false;
+  if(S.hands[S.turn].length !== S.snapshot.hand.length) return true;
+  if(S.table.length !== S.snapshot.table.length) return true;
+  return S.table.some((m,i)=>{
+    const o = S.snapshot.table[i];
+    return !o || o.id!==m.id || o.cards.length!==m.cards.length || o.cards.some((c,j)=>c!==m.cards[j]);
+  });
+}
+function undoStaged(){
+  if(!S.snapshot) return;
+  S.hands[S.turn] = [...S.snapshot.hand];
+  S.table = S.snapshot.table.map(m=>({id:m.id, cards:[...m.cards]}));
+  S.sel = [];
+  setStatus(null);
+  render(); save();
+}
+function setStatus(msg, cls){
+  S.status = msg ? {msg, cls:cls||""} : null;
+}
+
+function toggleSelect(cardId, fromTable){
+  if(fromTable && !S.opened){
+    setStatus("İlk açılış yapılmadan yerdeki kartlara dokunulamaz.","err");
+    render(); return;
+  }
+  const i = S.sel.indexOf(cardId);
+  if(i>=0) S.sel.splice(i,1); else S.sel.push(cardId);
+  setStatus(null);
+  render();
+}
+
+function removeSelectedFromSources(){
+  const selSet = new Set(S.sel);
+  S.hands[S.turn] = S.hands[S.turn].filter(id=>!selSet.has(id));
+  S.table.forEach(m=>{ m.cards = m.cards.filter(id=>!selSet.has(id)); });
+  S.table = S.table.filter(m=>m.cards.length>0);
+}
+
+function newMeldFromSelection(){
+  if(S.sel.length===0) return;
+  const cards = [...S.sel];
+  removeSelectedFromSources();
+  S.table.push({id:"m"+(S.meldSeq++), cards});
+  S.sel = [];
+  setStatus(null);
+  render(); save();
+}
+
+function addSelectionToMeld(meldId){
+  if(S.sel.length===0) return;
+  if(!S.opened){
+    setStatus("İlk açılış yapılmadan yerdeki perlere kart eklenemez.","err");
+    render(); return;
+  }
+  const cards = [...S.sel];
+  removeSelectedFromSources();
+  const m = S.table.find(m=>m.id===meldId);
+  if(m) m.cards.push(...cards);
+  else S.table.push({id:"m"+(S.meldSeq++), cards});
+  S.sel = [];
+  setStatus(null);
+  render(); save();
+}
+
+function tryCommit(){
+  const snap = S.snapshot;
+  // 1) tüm perler geçerli mi
+  const bad = S.table.find(m=>!isValidMeld(m.cards));
+  if(bad){
+    setStatus("Yerdeki tüm perler geçerli olmalı (en az 3 kart: seri ya da aynı sayı).","err");
+    render(); return;
+  }
+  // 2) elden en az 1 kart oynanmış mı
+  const played = snap.hand.length - S.hands[S.turn].length;
+  if(played < 1){
+    setStatus("Per açmak için elinden en az 1 kart oynamalısın.","err");
+    render(); return;
+  }
+  // 3) joker sadece eli bitirirken kullanılabilir
+  const jokerOnTable = S.table.some(m=>m.cards.some(id=>CARDS[id].joker));
+  if(jokerOnTable && S.hands[S.turn].length>0){
+    setStatus("Joker yalnızca elini bitirirken kullanılabilir: joker + 2 uygun kart son perin olmalı.","err");
+    render(); return;
+  }
+  // 4) ilk açılış kuralı
+  if(!S.opened){
+    const oldIds = new Set(snap.table.map(m=>m.id));
+    const newMelds = S.table.filter(m=>!oldIds.has(m.id));
+    if(newMelds.length < 2){
+      setStatus("İlk açılış için en az 2 per açmalısın.","err");
+      render(); return;
+    }
+    S.opened = true;
+  }
+  // commit
+  const n = S.names[S.turn];
+  S.lastAction = `${n} ${played} kart oynayıp per açtı.`;
+  S.passes = 0;
+  S.sel = [];
+  setStatus(null);
+  S.playedMeld[S.turn] = true;
+  // profil istatistikleri (cihaz sahibi = 1. oyuncu)
+  if(S.turn===0){
+    const oldMap = new Map(snap.table.map(m=>[m.id, m.cards.join(",")]));
+    const newMelds = S.table.filter(m=>!oldMap.has(m.id));
+    PROFILE.stats.pers += newMelds.length;
+    // sökme: eski bir per, eskiden sahip olduğu bir kartı kaybettiyse
+    const manipulated = snap.table.some(m=>{
+      const cur = S.table.find(x=>x.id===m.id);
+      if(!cur) return true;
+      return m.cards.some(c=>!cur.cards.includes(c));
+    });
+    if(manipulated) PROFILE.stats.steals++;
+    const newT = checkTrophies();
+    saveProfile();
+    if(newT.length) queueToasts(newT);
+  }
+  // rakibe göstermek için bu tur elden oynanan kartlar
+  S.lastPlayed = snap.hand.filter(id=>!S.hands[S.turn].includes(id));
+  S.lastPlayedBy = S.turn;
+  S.lastPlayedAt = null;
+  if(S.hands[S.turn].length===0){ endRound(S.turn, false); return; }
+  // elde yalnız joker kaldıysa jokeri atarak bitir -> rakibe 2 kat ceza
+  if(S.hands[S.turn].every(id=>CARDS[id].joker)){
+    S.lastAction = `${n} jokeri atarak bitirdi!`;
+    endRound(S.turn, true); return;
+  }
+  endTurn();
+}
+
+function drawCard(){
+  if(hasStagedChanges()){
+    setStatus("Kart çekmeden önce yaptığın değişiklikleri onayla ya da geri al.","err");
+    render(); return;
+  }
+  if(S.deck.length===0){ passTurn(); return; }
+  const c = S.deck.pop();
+  S.hands[S.turn].push(c);
+  S.freshCard = c;
+  S.lastAction = `${S.names[S.turn]} desteden 1 kart çekti.`;
+  S.passes = 0;
+  endTurn();
+}
+
+function passTurn(){
+  if(hasStagedChanges()){
+    setStatus("Pas geçmeden önce değişiklikleri onayla ya da geri al.","err");
+    render(); return;
+  }
+  S.passes++;
+  S.lastAction = `${S.names[S.turn]} pas geçti.`;
+  if(S.passes>=2){ endRound(null); return; }
+  endTurn();
+}
+
+function endTurn(){
+  S.turn = 1 - S.turn;
+  S.snapshot = null;
+  S.sel = [];
+  setStatus(null);
+  enterTurn();
+}
+
+function enterTurn(){
+  if(S.mode==="bot"){
+    S.screen = "game";
+    if(S.turn===0 && !S.snapshot) takeSnapshot();
+    render(); save();
+    if(S.turn===1) scheduleBot();
+  } else {
+    S.screen = "pass";
+    render(); save();
+  }
+}
+
+/* ================= BOT ================= */
+let botTimer = null;
+function scheduleBot(){
+  clearTimeout(botTimer);
+  botTimer = setTimeout(()=>{
+    if(S && S.mode==="bot" && S.turn===1 && S.screen==="game") botPlay();
+  }, 1100);
+}
+
+// Elde bulunabilecek ayrık perleri bul (önce en uzun seriler, sonra kütler)
+function findHandMelds(hand){
+  const avail = new Set(hand);
+  const melds = [];
+  for(let s=0; s<4; s++){
+    let go = true;
+    while(go){
+      go = false;
+      const byRank = {};
+      for(const id of hand)
+        if(avail.has(id) && CARDS[id].suit===s)
+          (byRank[CARDS[id].rank] = byRank[CARDS[id].rank]||[]).push(id);
+      const rs = new Set(Object.keys(byRank).map(Number));
+      const sorted = [...rs].sort((a,b)=>a-b);
+      let best = null;
+      for(let i=0; i<sorted.length;){
+        let j = i;
+        while(j+1<sorted.length && sorted[j+1]===sorted[j]+1) j++;
+        if(j-i+1>=3 && (!best || j-i>best.j-best.i)) best = {i,j};
+        i = j+1;
+      }
+      if(best){
+        const meld = [];
+        for(let k=best.i; k<=best.j; k++){
+          const id = (byRank[sorted[k]]||[]).find(x=>!meld.includes(x));
+          if(!id) break;
+          meld.push(id);
+        }
+        if(meld.length>=3){
+          meld.forEach(id=>avail.delete(id));
+          melds.push(meld);
+          go = true;
+        }
+      }
+    }
+  }
+  const byRank = {};
+  for(const id of hand)
+    if(avail.has(id))
+      (byRank[CARDS[id].rank] = byRank[CARDS[id].rank]||[]).push(id);
+  for(const r in byRank){
+    const bySuit = {};
+    for(const id of byRank[r]) if(!(CARDS[id].suit in bySuit)) bySuit[CARDS[id].suit] = id;
+    const ids = Object.values(bySuit).slice(0,4);
+    if(ids.length>=3){ ids.forEach(id=>avail.delete(id)); melds.push(ids); }
+  }
+  return melds;
+}
+
+// Eldeki tek kartları yerdeki perlere işlemeyi dene
+function botAppends(hand){
+  const played = [];
+  let changed = true;
+  while(changed){
+    changed = false;
+    for(const id of [...hand]){
+      for(const m of S.table){
+        if(isValidMeld([...m.cards, id])){
+          m.cards.push(id);
+          hand.splice(hand.indexOf(id),1);
+          played.push(id);
+          changed = true;
+          break;
+        }
+      }
+      if(changed) break;
+    }
+  }
+  return played;
+}
+
+// Zor bot: yerdeki perlerden "serbest" kartları söküp eldeki 2 kartla yeni per kurar
+function botSteals(hand){
+  const played = [];
+  let changed = true;
+  while(changed){
+    changed = false;
+    outer:
+    for(const m of S.table){
+      for(const f of [...m.cards]){
+        const rem = m.cards.filter(x=>x!==f);
+        if(rem.length<3 || !isValidMeld(rem)) continue; // f sökülünce per bozuluyorsa olmaz
+        const real = hand.filter(id=>!CARDS[id].joker);
+        for(let i=0;i<real.length;i++)
+          for(let j=i+1;j<real.length;j++){
+            if(isValidMeld([f, real[i], real[j]])){
+              m.cards = rem;
+              S.table.push({id:"m"+(S.meldSeq++), cards:[f, real[i], real[j]]});
+              [real[i], real[j]].forEach(id=>{ hand.splice(hand.indexOf(id),1); played.push(id); });
+              played.push(f);
+              changed = true;
+              break outer;
+            }
+          }
+      }
+    }
+  }
+  return played;
+}
+
+function botPlay(){
+  const hand = S.hands[1];
+  const playedIds = [];
+  const layMelds = ms => ms.forEach(m=>{
+    m.forEach(id=>{ hand.splice(hand.indexOf(id),1); playedIds.push(id); });
+    S.table.push({id:"m"+(S.meldSeq++), cards:m});
+  });
+  const realCards = () => hand.filter(id=>!CARDS[id].joker);
+
+  if(!S.opened){
+    const ms = findHandMelds(realCards());
+    if(ms.length>=2){ layMelds(ms); S.opened = true; }
+  }
+  if(S.opened){
+    let go = true;
+    while(go){
+      go = false;
+      const ms = findHandMelds(realCards());
+      if(ms.length){ layMelds(ms); go = true; }
+      const ap = botAppends(hand);
+      if(ap.length){ playedIds.push(...ap); go = true; }
+      if(S.diff==="zor"){
+        const stl = botSteals(hand);
+        if(stl.length){ playedIds.push(...stl); go = true; }
+      }
+    }
+    // bitiriş peri: joker + 2 uygun kart (elde sadece bu 3 kart kaldıysa)
+    const jok = hand.filter(id=>CARDS[id].joker);
+    const real = realCards();
+    if(hand.length===3 && jok.length===1 && real.length===2 && isValidMeld([...real, jok[0]])){
+      layMelds([[...real, jok[0]]]);
+    }
+  }
+  if(playedIds.length>0) S.playedMeld[1] = true;
+  if(hand.length===0){
+    S.lastAction = `${S.names[1]} elini bitirdi!`;
+    endRound(1, false); return;
+  }
+  // elde yalnız joker kaldıysa jokeri atarak bitir -> rakibe 2 kat ceza
+  if(realCards().length===0 && playedIds.length>0){
+    S.lastAction = `${S.names[1]} jokeri atarak bitirdi!`;
+    endRound(1, true); return;
+  }
+  if(playedIds.length>0){
+    S.lastAction = `${S.names[1]} ${playedIds.length} kart oynadı.`;
+    S.passes = 0;
+    S.lastPlayed = playedIds;
+    S.lastPlayedBy = 1;
+    S.lastPlayedAt = null;
+  } else if(S.deck.length===0){
+    S.passes++;
+    S.lastAction = `${S.names[1]} pas geçti.`;
+    if(S.passes>=2){ endRound(null); return; }
+  } else {
+    hand.push(S.deck.pop());
+    S.lastAction = `${S.names[1]} desteden 1 kart çekti.`;
+    S.passes = 0;
+  }
+  endTurn();
+}
+
+function endRound(winner, jokerDiscard=false){
+  const pts = [0,0];
+  for(const p of [0,1]){
+    pts[p] = S.hands[p].reduce((t,id)=>t+cardVal(id),0);
+    if(winner===p) pts[p] = -50;
+    else if(winner!==null && jokerDiscard) pts[p] *= 2; // jokerle bitiş: rakibe 2 kat
+  }
+  S.scores[0]+=pts[0]; S.scores[1]+=pts[1];
+  let rewards = null;
+  try{ rewards = grantRoundRewards(winner, jokerDiscard); }catch(e){}
+  S.roundResult = {winner, pts, jokerDiscard, rewards};
+  S.screen = "roundEnd";
+  render(); save();
+}
+
+function nextRound(){
+  const keep = {names:S.names, mode:S.mode, diff:S.diff, scores:S.scores, round:S.round+1};
+  const starter = 1 - S.starter;
+  S = {...keep, screen:"pass", ...freshRound(starter)};
+  enterTurn();
+}
+
+/* ================= SORT / MANUEL DİZME ================= */
+function sortHand(){
+  const mode = S.sortMode;
+  S.hands[S.turn].sort((a,b)=>{
+    const A=sortKey(a), B=sortKey(b);
+    if(mode==="suit") return (A.s-B.s) || (A.r-B.r);
+    return (A.r-B.r) || (A.s-B.s);
+  });
+  syncSnapshotOrder();
+}
+
+// El sıralaması değişince (manuel dizme/sırala) snapshot'taki sırayı da eşitle:
+// dizme bir hamle değildir, Geri Al onu bozmamalı.
+function syncSnapshotOrder(){
+  if(!S.snapshot) return;
+  const cur = S.hands[S.turn];
+  const inCur = new Set(cur);
+  S.snapshot.hand = [...cur, ...S.snapshot.hand.filter(id=>!inCur.has(id))];
+}
+
+/* ================= RENDER ================= */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function cardHTML(id, opts={}){
+  const c = CARDS[id];
+  const sel = S.sel.includes(id) ? " sel":"";
+  const fresh = (opts.me!=null && id===S.freshCard && S.hands[opts.me].includes(id)) ? " fresh":"";
+  const glow = opts.glow ? " glow":"";
+  const style = opts.glow ? ` style="animation-delay:-${Math.round(opts.delay||0)}ms"`:"";
+  if(c.joker){
+    return `<div class="card joker${sel}${fresh}${glow}" data-card="${id}"${style}>
+      <div class="ci">J<em>★</em></div>
+      <div class="ci f">J<em>★</em></div>
+    </div>`;
+  }
+  const su = SUITS[c.suit];
+  const red = su.red ? " red":"";
+  const r = RANKS[c.rank-1];
+  return `<div class="card${red}${sel}${fresh}${glow}" data-card="${id}"${style}>
+    <div class="ci">${r}<em>${su.sym}</em></div>
+    <div class="ci f">${r}<em>${su.sym}</em></div>
+  </div>`;
+}
+
+/* Eldeki kartlar sığmıyorsa kaydırmadan önce aralarını sıkıştır;
+   sıkıştırma 20 kartla sınırlı, fazlası yana kaydırılır */
+function layoutHand(){
+  const hand = document.getElementById("hand");
+  if(!hand || !hand.children.length) return;
+  const n = Math.min(hand.children.length, 20);
+  const cw = hand.children[0].offsetWidth || 56;
+  const avail = hand.clientWidth - 32; // yatay padding
+  let ov = -20; // rahat diziliş
+  if(n>1){
+    const fit = (avail - cw)/(n-1) - cw; // 20 karta kadar hepsi sığsın diye gereken bindirme
+    ov = Math.max(-44, Math.min(-20, fit));
+  }
+  hand.style.setProperty("--ov", ov+"px");
+}
+
+let view = null; // null | "trophies"
+function render(){
+  if(view==="trophies"){ renderTrophies(); return; }
+  if(!S){ renderMenu(); return; }
+  switch(S.screen){
+    case "menu": renderMenu(); break;
+    case "pass": renderPass(); break;
+    case "game": renderGame(); break;
+    case "roundEnd": renderRoundEnd(); break;
+  }
+}
+
+function renderMenu(){
+  const saved = loadSave();
+  const canResume = saved && saved.screen && saved.screen!=="menu";
+  const lv = levelOf(PROFILE.xp);
+  const nextXp = lv.next ? `${PROFILE.xp} / ${lv.next.xp} XP` : `${PROFILE.xp} XP`;
+  app.innerHTML = `
+  <div class="screen menu">
+    <div class="crest">
+      <div class="cardback cb1${cbCls()}"></div>
+      <div class="cardback cb2${cbCls()}"></div>
+    </div>
+    <div>
+      <h1 class="title">KASTET</h1>
+      <div class="rule-line"><span>❖</span></div>
+      <div class="subtitle">İskambil Oyunu</div>
+    </div>
+    <button class="profile-strip" id="profileBtn" aria-label="Ödüller ve profil">
+      <div class="lvl-badge">${lv.i+1}</div>
+      <div class="p-info">
+        <div class="p-title">${lv.title}</div>
+        <div class="p-sub">${PROFILE.stats.wins} zafer · ${PROFILE.stats.hands} el · ${nextXp}</div>
+        <div class="xpbar"><i style="width:${Math.round(lv.prog*100)}%"></i></div>
+      </div>
+      ${PROFILE.newIds.length?`<span class="newdot"></span>`:""}
+    </button>
+    <div class="mode-seg" role="radiogroup" aria-label="Oyun modu">
+      <button class="seg${menuMode==="bot"?" active":""}" data-mode="bot">🤖 Bota Karşı</button>
+      <button class="seg${menuMode==="2p"?" active":""}" data-mode="2p">👥 İki Kişilik</button>
+    </div>
+    ${menuMode==="bot"?`
+    <div class="mode-seg" role="radiogroup" aria-label="Bot seviyesi">
+      <button class="seg${menuDiff==="orta"?" active":""}" data-diff="orta">Orta</button>
+      <button class="seg${menuDiff==="zor"?" active":""}" data-diff="zor">Zor</button>
+    </div>`:""}
+    <div class="name-fields">
+      <div><label for="n0">${menuMode==="bot"?"Adın":"1. Oyuncu"}</label><input id="n0" maxlength="14" placeholder="Oyuncu 1" value="${esc(saved?.names?.[0]||"")}"></div>
+      <div id="n1wrap" class="${menuMode==="bot"?"hidden":""}"><label for="n1">2. Oyuncu</label><input id="n1" maxlength="14" placeholder="Oyuncu 2" value="${esc(/^Bot\b/.test(saved?.names?.[1]||"")?"":(saved?.names?.[1]||""))}"></div>
+    </div>
+    <button class="btn btn-gold" id="startBtn">Yeni Oyun</button>
+    ${canResume?`<button class="btn btn-ghost" id="resumeBtn">Kaldığın Yerden Devam Et</button>`:""}
+    <div class="btnrow">
+      <button class="btn btn-ghost" id="trophyBtn">🏆 Ödüller</button>
+      <button class="btn btn-ghost" id="rulesBtn">Nasıl Oynanır?</button>
+    </div>
+    <div class="menu-foot">Bota karşı tek başına ya da aynı cihazda iki kişi<br>İnternet gerekmez · Çift deste + 2 joker (106 kart)</div>
+  </div>`;
+  app.querySelectorAll(".mode-seg .seg").forEach(b=>{
+    b.onclick = ()=>{
+      if(b.dataset.mode){
+        menuMode = b.dataset.mode;
+        try{ localStorage.setItem("kastet-mode", menuMode); }catch(e){}
+      } else if(b.dataset.diff){
+        menuDiff = b.dataset.diff;
+        try{ localStorage.setItem("kastet-diff", menuDiff); }catch(e){}
+      }
+      renderMenu();
+    };
+  });
+  document.getElementById("startBtn").onclick = ()=>{
+    const n0 = document.getElementById("n0").value.trim() || "Oyuncu 1";
+    const n1 = menuMode==="bot" ? (menuDiff==="zor"?"Bot (Zor)":"Bot (Orta)") : (document.getElementById("n1").value.trim() || "Oyuncu 2");
+    S = freshMatch([n0,n1], menuMode, menuDiff);
+    enterTurn();
+  };
+  if(canResume) document.getElementById("resumeBtn").onclick = ()=>{
+    S = saved;
+    if(S.screen==="game"||S.screen==="pass") enterTurn();
+    else render();
+  };
+  document.getElementById("rulesBtn").onclick = ()=>showRules();
+  const openTrophies = ()=>{ view="trophies"; render(); };
+  document.getElementById("trophyBtn").onclick = openTrophies;
+  document.getElementById("profileBtn").onclick = openTrophies;
+}
+
+function showRules(){
+  const ov = document.createElement("div");
+  ov.className = "overlay";
+  ov.innerHTML = `
+  <div class="panel">
+    <h2>Nasıl Oynanır?</h2>
+    <div class="rules-body">
+      <h3>Amaç</h3>
+      Elindeki 14 kartı <b>per</b> hâline getirip yere açarak elini ilk bitiren olmak.
+      <h3>Per Nedir?</h3>
+      <ul>
+        <li><b>Seri:</b> Aynı renkten en az 3 ardışık kart (örn. ♥7-♥8-♥9). As yalnızca serinin başında kullanılabilir (A-2-3); Q-K-A ve K-A-2 olmaz.</li>
+        <li><b>Küt:</b> Aynı sayıdan, farklı renklerde 3 ya da 4 kart (örn. ♠9-♥9-♦9, ♠A-♥A-♦A).</li>
+      </ul>
+      <h3>Sıra Sende</h3>
+      Sıran geldiğinde <b>iki seçenekten birini</b> yaparsın:
+      <ul>
+        <li><b>Kart çek:</b> Desteden 1 kart al, sıra rakibe geçer.</li>
+        <li><b>Per aç / işle:</b> Kartlarını seçip yeni per aç ya da yerdeki perlere işle, sonra <b>Onayla</b>.</li>
+      </ul>
+      <h3>İlk Açılış</h3>
+      Oyundaki ilk açılışı yapan oyuncu <b>en az 2 per</b> açmak zorundadır. Sonrasında serbesttir.
+      <h3>Kastet'in Sırrı</h3>
+      Yerdeki perler <b>ortak maldır</b>. Açılıştan sonra perleri bölebilir, birleştirebilir, kartlarını aralarına işleyebilirsin — yeter ki onayladığında yerdeki her per geçerli olsun ve elinden en az 1 kart oynamış ol.
+      <h3>Joker</h3>
+      Destede <b>2 joker</b> vardır. Joker oyun sırasında kullanılamaz, <b>yalnızca eli bitirirken</b>:
+      <ul>
+        <li>Son perin <b>joker + 2 uygun kart</b> olabilir; joker eksik kartın yerine geçer.</li>
+        <li>Ya da diğer tüm kartlarını açıp elinde <b>yalnız jokeri</b> bırakarak bitirirsin — bu durumda rakibin cezası <b>2 kat</b> yazılır.</li>
+        <li>El bittiğinde elde kalan joker <b>25 ceza</b> puanıdır.</li>
+      </ul>
+      <h3>Rakip Hamlesi</h3>
+      Sıra sana geldiğinde rakibin son hamlede oynadığı kartlar masada <b>7 saniye parlayarak</b> gösterilir.
+      <h3>El Düzeni</h3>
+      Elindeki bir kartı <b>basılı tutup sürükleyerek</b> istediğin yere dizebilirsin; hızlıca kaydırarak ele göz atar, dokunarak seçersin. <b>Sırala</b> düğmesi renge ya da sayıya göre otomatik dizer.
+      <h3>Puanlama</h3>
+      <ul>
+        <li>Elini bitiren: <b>−50</b> puan (bonus).</li>
+        <li>Rakip: elinde kalan kartların toplamı kadar <b>ceza</b> (A=1 … K=13).</li>
+        <li>Deste bittiğinde iki oyuncu da üst üste pas geçerse el biter, ikisi de elindekini ceza yazar.</li>
+        <li><b>Düşük toplam puan kazanır.</b></li>
+      </ul>
+    </div>
+    <button class="btn btn-gold" id="closeRules">Anladım</button>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector("#closeRules").onclick = ()=>ov.remove();
+  ov.onclick = e=>{ if(e.target===ov) ov.remove(); };
+}
+
+function renderTrophies(){
+  const lv = levelOf(PROFILE.xp);
+  const nextXp = lv.next ? `${PROFILE.xp} / ${lv.next.xp} XP` : `${PROFILE.xp} XP · zirvedesin`;
+  const groups = TROPHIES.map(t=>{
+    const have = PROFILE.trophies[t.id]||0;
+    const val = PROFILE.stats[t.stat]||0;
+    const nextTh = t.tiers[have];
+    const pill = nextTh!=null ? `${val} / ${nextTh} ${t.unit}` : "Tamamlandı ✓";
+    const tiles = t.tiers.map((th,ix)=>{
+      const earned = ix<have;
+      const isNew = PROFILE.newIds.includes(t.id+":"+ix);
+      return `<div class="tile${earned?" earned":""}${isNew?" newt":""}">
+        ${isNew?`<span class="newpill">Yeni</span>`:""}
+        ${badgeSVG(ix, earned)}
+        <div class="tlabel">${th} ${t.unit}</div>
+      </div>`;
+    }).join("");
+    return `<div class="tr-group">
+      <div class="tr-group-head"><div><h3>${t.name}</h3><small>${t.desc}</small></div><span class="tr-pill">${pill}</span></div>
+      <div class="tr-tiles" style="grid-template-columns:repeat(${t.tiers.length},1fr)">${tiles}</div>
+    </div>`;
+  }).join("");
+
+  const backSw = BACKS.map(b=>{
+    const ok = reqMet(b.req), sel = PROFILE.back===b.id;
+    return `<div class="swatch${sel?" sel":""}${ok?"":" locked"}" data-back="${b.id}">
+      <div class="prev cardback${b.id!=="kilim"?" cb-"+b.id:""}"></div>
+      <div class="sname">${b.name}</div>
+      ${ok?"":`<div class="locknote">🔒 ${reqText(b.req)}</div>`}
+    </div>`;
+  }).join("");
+  const feltSw = FELTS.map(f=>{
+    const ok = reqMet(f.req), sel = PROFILE.felt===f.id;
+    return `<div class="swatch${sel?" sel":""}${ok?"":" locked"}" data-felt="${f.id}">
+      <div class="feltprev f-${f.id}"></div>
+      <div class="sname">${f.name}</div>
+      ${ok?"":`<div class="locknote">🔒 ${reqText(f.req)}</div>`}
+    </div>`;
+  }).join("");
+
+  app.innerHTML = `
+  <div class="screen trscreen">
+    <div class="tr-head">
+      <button class="backbtn" id="backBtn" aria-label="Geri">‹</button>
+      <h2>ÖDÜLLER</h2>
+    </div>
+    <div class="profile-card">
+      <div class="lvl-badge">${lv.i+1}</div>
+      <div class="p-info">
+        <div class="p-title">${lv.title}</div>
+        <div class="p-sub">${PROFILE.stats.wins} zafer · ${PROFILE.stats.hands} el · en iyi seri ${PROFILE.stats.bestStreak} · ${nextXp}</div>
+        <div class="xpbar"><i style="width:${Math.round(lv.prog*100)}%"></i></div>
+      </div>
+    </div>
+    ${groups}
+    <h3 class="cos-h">🂠 Kart Arkası</h3>
+    <div class="swatches">${backSw}</div>
+    <h3 class="cos-h">▦ Masa Çuhası</h3>
+    <div class="swatches">${feltSw}</div>
+  </div>`;
+
+  document.getElementById("backBtn").onclick = ()=>{
+    PROFILE.newIds = []; saveProfile();
+    view = null; render();
+  };
+  app.querySelectorAll(".swatch[data-back]").forEach(el=>{
+    el.onclick = ()=>{
+      const b = BACKS.find(x=>x.id===el.dataset.back);
+      if(!reqMet(b.req)) return;
+      PROFILE.back = b.id; saveProfile(); renderTrophies();
+    };
+  });
+  app.querySelectorAll(".swatch[data-felt]").forEach(el=>{
+    el.onclick = ()=>{
+      const f = FELTS.find(x=>x.id===el.dataset.felt);
+      if(!reqMet(f.req)) return;
+      PROFILE.felt = f.id; saveProfile(); applyFelt(); renderTrophies();
+    };
+  });
+}
+
+function renderPass(){
+  const n = S.names[S.turn];
+  app.innerHTML = `
+  <div class="screen pass" id="passScreen">
+    <div class="roundlbl">${S.round}. EL</div>
+    <div class="cardback bigback${cbCls()}"></div>
+    <div>
+      <div class="pass-name">${esc(n)}</div>
+      <div class="pass-hint">Sıra sende — görmek için dokun</div>
+    </div>
+    ${S.lastAction?`<div class="pass-last">${esc(S.lastAction)}</div>`:""}
+  </div>`;
+  document.getElementById("passScreen").onclick = ()=>{
+    S.screen = "game";
+    if(!S.snapshot) takeSnapshot();
+    render(); save();
+  };
+}
+
+function renderGame(){
+  const me = S.mode==="bot" ? 0 : S.turn;
+  const opp = 1-me;
+  const myTurn = S.turn===me;
+  const staged = myTurn && hasStagedChanges();
+  const canDraw = myTurn && !staged;
+  const deckEmpty = S.deck.length===0;
+  const selCount = S.sel.length;
+
+  // rakibin son oynadığı kartları 7 sn parlat (süre, oyuncu ekranı gördüğünde başlar)
+  const showGlow = myTurn && S.lastPlayedBy===opp && S.lastPlayed && S.lastPlayed.length>0;
+  if(showGlow && !S.lastPlayedAt) S.lastPlayedAt = Date.now();
+  const glowElapsed = S.lastPlayedAt ? Date.now()-S.lastPlayedAt : 0;
+  const glowActive = showGlow && glowElapsed < 7000;
+  const glowSet = glowActive ? new Set(S.lastPlayed) : null;
+
+  const meldsHTML = S.table.map(m=>{
+    const valid = isValidMeld(m.cards);
+    const drop = myTurn && selCount>0 && S.opened ? " droptarget":"";
+    const inv = !valid ? " invalid":"";
+    return `<div class="meld${drop}${inv}" data-meld="${m.id}">
+      ${sortMeldForDisplay(m.cards).map(id=>cardHTML(id, glowSet&&glowSet.has(id)?{glow:true,delay:glowElapsed}:{})).join("")}
+    </div>`;
+  }).join("");
+
+  const tableInner = S.table.length===0
+    ? `<div class="table-empty">Masa boş.<br>İlk açılış için elinden <b>en az 2 per</b> seçip aç.</div>`
+    : `<div class="melds">${meldsHTML}
+        ${myTurn&&selCount>0?`<button class="newmeld-btn" id="newMeldBtn">+ Yeni Per (${selCount})</button>`:""}
+       </div>`;
+
+  const st = S.status;
+  const defaultHint = !myTurn
+    ? `${S.names[opp]} oynuyor…`
+    : staged
+    ? "Değişiklikleri Onayla ya da Geri Al."
+    : (selCount>0
+        ? (S.opened ? "Seçilenlerle yeni per aç ya da bir pere dokunarak işle." : "Yeni Per ile aç — ilk açılışta en az 2 per gerekir.")
+        : (S.mode==="bot" && S.lastAction ? S.lastAction+" Sıra sende." : "Kart seç ya da desteden çek. Basılı tutup sürükleyerek dizebilirsin."));
+
+  app.innerHTML = `
+  <div class="screen game">
+    <div class="topbar">
+      <div class="pchip${myTurn?" active":""}">
+        <div class="pname">${esc(S.names[me])}</div>
+        <div class="pmeta"><span>${S.hands[me].length} kart</span><span>${S.scores[me]} puan</span></div>
+      </div>
+      <div class="centerinfo">
+        <div class="deckcount"><span class="cardback mini-back${cbCls()}"></span>${S.deck.length}</div>
+        <div class="roundlbl">${S.round}. el</div>
+      </div>
+      <div class="pchip${myTurn?"":" active"}">
+        <div class="pname">${esc(S.names[opp])}</div>
+        <div class="pmeta"><span>${S.hands[opp].length} kart</span><span>${S.scores[opp]} puan</span></div>
+      </div>
+    </div>
+    <div class="tablewrap">${
+      S.table.length===0 && myTurn && selCount>0
+        ? `<div class="melds"><button class="newmeld-btn" id="newMeldBtn">+ Yeni Per (${selCount})</button></div>${tableInner}`
+        : tableInner
+    }</div>
+    <div class="handzone">
+      <div class="statusline ${st?st.cls:""}">${st?esc(st.msg):esc(defaultHint)}</div>
+      <div class="hand-head">
+        <div class="hand-title">Elin — ${S.hands[me].length} kart</div>
+        <button class="sortbtn" id="sortBtn" ${myTurn?"":"disabled"}>Sırala: ${S.sortMode==="suit"?"Renk":"Sayı"} ⇅</button>
+      </div>
+      <div class="hand" id="hand">${S.hands[me].map(id=>cardHTML(id,{me})).join("")}</div>
+      <div class="actions">
+        <button class="abtn abtn-undo" id="undoBtn" ${staged?"":"disabled"}>Geri Al</button>
+        <button class="abtn abtn-draw" id="drawBtn" ${canDraw?"":"disabled"}>${deckEmpty?"Pas Geç":"Kart Çek"}</button>
+        <button class="abtn abtn-ok" id="okBtn" ${staged?"":"disabled"}>Onayla</button>
+      </div>
+    </div>
+  </div>`;
+
+  layoutHand();
+  if(myTurn){
+    attachHandDrag(me);
+    // yerdeki kartlara dokunma + pere işleme
+    app.querySelectorAll(".meld").forEach(el=>{
+      el.querySelectorAll(".card").forEach(cel=>{
+        cel.onclick = e=>{
+          e.stopPropagation();
+          if(S.sel.length>0 && !S.sel.includes(cel.dataset.card) && S.opened){
+            addSelectionToMeld(el.dataset.meld);
+          } else {
+            toggleSelect(cel.dataset.card, true);
+          }
+        };
+      });
+      el.onclick = ()=>{ if(S.sel.length>0) addSelectionToMeld(el.dataset.meld); };
+    });
+    const nm = document.getElementById("newMeldBtn");
+    if(nm) nm.onclick = ()=>newMeldFromSelection();
+    document.getElementById("sortBtn").onclick = ()=>{
+      S.sortMode = S.sortMode==="suit"?"rank":"suit";
+      sortHand(); render(); save();
+    };
+    document.getElementById("undoBtn").onclick = ()=>undoStaged();
+    document.getElementById("drawBtn").onclick = ()=>drawCard();
+    document.getElementById("okBtn").onclick = ()=>tryCommit();
+  }
+}
+
+/* Elde manuel dizme: dokun = seç, basılı tutup sürükle = taşı, hızlı kaydır = ele göz at */
+function attachHandDrag(me){
+  const hand = document.getElementById("hand");
+  if(!hand) return;
+  hand.oncontextmenu = e=>e.preventDefault();
+  let pid=null, el=null, mode=null, timer=null, startX=0, startY=0, lastX=0;
+
+  hand.onpointerdown = e=>{
+    const card = e.target.closest(".card");
+    if(!card || S.turn!==me) return;
+    pid=e.pointerId; el=card; mode="pending";
+    startX=lastX=e.clientX; startY=e.clientY;
+    try{ hand.setPointerCapture(pid); }catch(err){}
+    timer = setTimeout(()=>{
+      if(mode==="pending"){ mode="drag"; el.classList.add("drag"); }
+    }, 200);
+  };
+  hand.onpointermove = e=>{
+    if(e.pointerId!==pid) return;
+    const dx = e.clientX-lastX; lastX = e.clientX;
+    if(mode==="pending" && (Math.abs(e.clientX-startX)>8 || Math.abs(e.clientY-startY)>8)){
+      mode="scroll"; clearTimeout(timer);
+    }
+    if(mode==="scroll"){
+      hand.scrollLeft -= dx;
+    } else if(mode==="drag"){
+      const r = hand.getBoundingClientRect();
+      if(e.clientX < r.left+46) hand.scrollLeft -= 10;
+      else if(e.clientX > r.right-46) hand.scrollLeft += 10;
+      const others = [...hand.querySelectorAll(".card")].filter(c=>c!==el);
+      let target = null;
+      for(const c of others){
+        const b = c.getBoundingClientRect();
+        if(e.clientX < b.left + b.width/2){ target=c; break; }
+      }
+      if(target) hand.insertBefore(el, target);
+      else hand.appendChild(el);
+    }
+  };
+  const finish = e=>{
+    if(e.pointerId!==pid) return;
+    clearTimeout(timer);
+    if(mode==="pending" && el){
+      toggleSelect(el.dataset.card, false);
+    } else if(mode==="drag" && el){
+      el.classList.remove("drag");
+      S.hands[me] = [...hand.querySelectorAll(".card")].map(c=>c.dataset.card);
+      syncSnapshotOrder();
+      save(); render();
+    }
+    pid=null; el=null; mode=null;
+  };
+  hand.onpointerup = finish;
+  hand.onpointercancel = finish;
+}
+
+function renderRoundEnd(){
+  const r = S.roundResult || {winner:null, pts:[0,0]};
+  const w = r.winner;
+  const title = w===null ? "El Berabere Bitti" : `${esc(S.names[w])} Eli Bitirdi!`;
+  const leader = S.scores[0]===S.scores[1] ? null : (S.scores[0]<S.scores[1]?0:1);
+  app.innerHTML = `
+  <div class="screen menu">
+    <div class="panel" style="width:min(420px,92vw)">
+      <h2>${S.round}. El Bitti</h2>
+      <div class="winner-banner">${title}</div>
+      ${w!==null?`<div class="win-sub">−50 bonus kazandı${r.jokerDiscard?" · Jokeri atarak bitirdi — rakibin cezası 2 kat yazıldı!":""}</div>`:`<div class="win-sub">Deste bitti, iki oyuncu da pas geçti</div>`}
+      <table class="score-table">
+        <tr><td>${esc(S.names[0])} — bu el</td><td>${r.pts[0]>0?"+":""}${r.pts[0]}</td></tr>
+        <tr><td>${esc(S.names[1])} — bu el</td><td>${r.pts[1]>0?"+":""}${r.pts[1]}</td></tr>
+        <tr class="total"><td>${esc(S.names[0])} — toplam</td><td>${S.scores[0]}</td></tr>
+        <tr class="total"><td>${esc(S.names[1])} — toplam</td><td>${S.scores[1]}</td></tr>
+      </table>
+      ${leader!==null?`<div class="win-sub">Önde: <b>${esc(S.names[leader])}</b> (düşük puan kazanır)</div>`:""}
+      ${r.rewards?`<div class="rewards">
+        <div class="xp-chip">+${r.rewards.xp} XP</div>
+        ${r.rewards.levelUp?`<div class="lvlup">✦ Yeni unvan: ${r.rewards.levelUp}! ✦</div>`:""}
+        ${(r.rewards.newT||[]).map(e=>`<div class="rew-tile">${badgeSVG(e.tier,true)}<span>${e.t.name} · ${TIER_NAMES[e.tier]} kazanıldı</span></div>`).join("")}
+      </div>`:""}
+      <button class="btn btn-gold" id="nextBtn">Yeni El</button>
+      ${r.rewards&&r.rewards.newT&&r.rewards.newT.length?`<button class="btn btn-ghost" id="seeTrophies">🏆 Ödülleri Gör</button>`:""}
+      <button class="btn btn-ghost" id="menuBtn">Ana Menü</button>
+    </div>
+  </div>`;
+  if(w!==null && !(S.mode==="bot" && w===1)) confetti();
+  const st = document.getElementById("seeTrophies");
+  if(st) st.onclick = ()=>{ view="trophies"; render(); };
+  document.getElementById("nextBtn").onclick = ()=>nextRound();
+  document.getElementById("menuBtn").onclick = ()=>{
+    clearSave(); S=null; render();
+  };
+}
+
+function confetti(){
+  const box = document.createElement("div");
+  box.className = "confetti";
+  const colors = ["#E7C98A","#C9A45C","#F8F3E6","#B3382E","#4CAF7D"];
+  for(let i=0;i<60;i++){
+    const p = document.createElement("i");
+    p.style.left = Math.random()*100+"vw";
+    p.style.background = colors[i%colors.length];
+    p.style.animationDuration = (2.4+Math.random()*2.2)+"s";
+    p.style.animationDelay = (Math.random()*0.9)+"s";
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(()=>box.remove(), 6200);
+}
+
+/* ================= BOOT ================= */
+applyFelt();
+render();
+window.addEventListener("resize", ()=>layoutHand());
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+// test/debug erişimi
+window.__K = {
+  get state(){ return S; },
+  set state(v){ S=v; render(); },
+  render,
+  get CARDS(){ return CARDS; },
+};
+</script>
+</body>
+</html>

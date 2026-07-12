@@ -1,0 +1,10 @@
+{
+  "appId": "com.bivomedya.kastet",
+  "appName": "Kastet",
+  "webDir": "www",
+  "backgroundColor": "#06231A",
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": false
+  }
+}

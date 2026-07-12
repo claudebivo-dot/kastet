@@ -1,0 +1,35 @@
+workflows:
+  ios-appstore:
+    name: Kastet iOS — TestFlight & App Store
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: kastet-api-key   # Codemagic > Teams > Integrations bölümünde bu adla API anahtarı tanımlayın
+    environment:
+      node: 20
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bivomedya.kastet
+    scripts:
+      - name: Bağımlılıkları kur
+        script: npm install
+      - name: Web varlıklarını iOS projesine kopyala
+        script: npx cap sync ios
+      - name: İmzalama profillerini uygula
+        script: xcode-project use-profiles
+      - name: Build numarasını ayarla
+        script: |
+          cd ios/App
+          agvtool new-version -all $BUILD_NUMBER
+      - name: IPA derle
+        script: |
+          xcode-project build-ipa \
+            --project ios/App/App.xcodeproj \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

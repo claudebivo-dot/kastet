@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="felt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0E4130"/>
+      <stop offset="1" stop-color="#04170F"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F0D488"/>
+      <stop offset="0.5" stop-color="#C9A45C"/>
+      <stop offset="1" stop-color="#96742F"/>
+    </linearGradient>
+    <linearGradient id="cardface" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EFE8D5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#felt)"/>
+  <rect x="34" y="34" width="956" height="956" rx="70" fill="none" stroke="#C9A45C" stroke-opacity=".4" stroke-width="10"/>
+  <!-- arka kart -->
+  <g transform="rotate(9 512 540)">
+    <rect x="330" y="240" width="420" height="600" rx="44" fill="#0D2E22" stroke="#C9A45C" stroke-width="10"/>
+    <rect x="352" y="262" width="376" height="556" rx="32" fill="none" stroke="#C9A45C" stroke-opacity=".5" stroke-width="5"/>
+    <text x="540" y="585" font-family="Georgia,serif" font-size="150" text-anchor="middle" fill="#C9A45C" opacity=".85">❖</text>
+  </g>
+  <!-- ön kart -->
+  <g transform="rotate(-10 470 560)">
+    <rect x="260" y="260" width="420" height="600" rx="44" fill="url(#cardface)" stroke="#20242A" stroke-width="8"/>
+    <text x="470" y="640" font-family="Georgia,serif" font-weight="bold" font-size="380" text-anchor="middle" fill="url(#brass)" stroke="#5A4517" stroke-width="6">K</text>
+    <text x="322" y="380" font-family="Georgia,serif" font-weight="bold" font-size="90" fill="#B3382E">♥</text>
+    <text x="618" y="800" font-family="Georgia,serif" font-weight="bold" font-size="90" fill="#B3382E" transform="rotate(180 618 772)">♥</text>
+  </g>
+</svg>
