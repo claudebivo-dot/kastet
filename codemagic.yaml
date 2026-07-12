@@ -6,7 +6,7 @@ workflows:
     integrations:
       app_store_connect: kastet-api-key   # Codemagic > Teams > Integrations bölümünde bu adla API anahtarı tanımlayın
     environment:
-      node: 20
+      node: 22
       xcode: latest
       ios_signing:
         provisioning_profiles:
