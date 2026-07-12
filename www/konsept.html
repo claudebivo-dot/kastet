@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kastet — Premium Konsept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#040907;
+  --emerald-950:#04120C;
+  --emerald-900:#071D14;
+  --emerald-800:#0A2A1D;
+  --emerald-700:#0E3A28;
+  --foil-1:#F4E3AF;
+  --foil-2:#D9B865;
+  --foil-3:#9C7A35;
+  --foil-4:#6E5320;
+  --ivory:#FBF6E9;
+  --ivory-dim:#E6DCC4;
+  --oxblood:#7E2430;
+  --ink:#171B1E;
+  --red:#B5232E;
+  --display:'Cinzel',serif;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --body:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:
+    radial-gradient(80% 60% at 50% 0%,#101613 0%,#070A08 60%,#030404 100%);
+  color:var(--ivory);font-family:var(--body);
+  min-height:100vh;padding:48px 28px 80px;
+}
+.head{max-width:1280px;margin:0 auto 10px;text-align:center}
+.head h1{
+  font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.22em;
+  background:linear-gradient(100deg,var(--foil-4),var(--foil-2) 30%,var(--foil-1) 50%,var(--foil-2) 70%,var(--foil-4));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.head p{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ivory-dim);opacity:.75;margin-top:8px}
+.palette{display:flex;gap:10px;justify-content:center;margin:22px 0 40px}
+.chip{width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,227,175,.3);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.chip span{display:block;text-align:center;font-size:9px;color:var(--ivory-dim);margin-top:50px;letter-spacing:.06em;white-space:nowrap}
+
+.stage{display:flex;gap:44px;justify-content:center;flex-wrap:wrap;max-width:1400px;margin:0 auto}
+.slot{display:flex;flex-direction:column;align-items:center;gap:18px}
+.slot .cap{font-family:var(--display);font-size:13px;letter-spacing:.28em;color:var(--foil-2)}
+.slot .note{max-width:330px;font-size:12.5px;line-height:1.75;color:rgba(251,246,233,.55);text-align:center}
+.note b{color:var(--foil-1);font-weight:700}
+
+/* ============ TELEFON ÇERÇEVESİ ============ */
+.phone{
+  width:352px;height:763px;border-radius:44px;position:relative;overflow:hidden;
+  border:1.5px solid rgba(244,227,175,.28);
+  box-shadow:0 40px 90px rgba(0,0,0,.75),0 0 0 8px #0B0D0C,0 0 0 9px rgba(244,227,175,.12);
+  background:var(--emerald-950);
+  flex-shrink:0;
+}
+.statusrow{
+  position:absolute;top:0;left:0;right:0;height:44px;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;padding:0 26px;
+  font-size:13px;font-weight:700;color:var(--ivory);
+}
+.screenc{position:absolute;inset:0;display:flex;flex-direction:column}
+
+/* ortak zemin: gece zümrüt + varak damarları + vinyet */
+.feltbg{
+  background:
+    radial-gradient(120% 75% at 50% -5%,var(--emerald-700) 0%,var(--emerald-900) 48%,var(--emerald-950) 100%);
+  position:relative;
+}
+.feltbg::before{ /* işlemeli monogram deseni */
+  content:"";position:absolute;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%23F4E3AF' stroke-width='1'%3E%3Cpath d='M36 12 L48 36 L36 60 L24 36 Z'/%3E%3Ccircle cx='36' cy='36' r='5'/%3E%3C/g%3E%3C/svg%3E");
+}
+.feltbg::after{ /* vinyet */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(115% 90% at 50% 42%,transparent 55%,rgba(2,6,4,.55) 100%);
+}
+.z{position:relative;z-index:2}
+
+/* varak çizgi */
+.foil-rule{display:flex;align-items:center;gap:12px;width:210px;margin:0 auto}
+.foil-rule::before,.foil-rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--foil-2))}
+.foil-rule::after{background:linear-gradient(90deg,var(--foil-2),transparent)}
+.foil-rule i{
+  width:7px;height:7px;transform:rotate(45deg);border:1px solid var(--foil-2);
+  background:linear-gradient(135deg,var(--foil-1),var(--foil-3));font-style:normal;
+}
+
+/* ============ 1 — MENÜ ============ */
+.medallion{
+  width:118px;height:118px;border-radius:50%;margin:0 auto;position:relative;
+  background:
+    radial-gradient(65% 65% at 38% 30%,#12432E,#071D14 75%);
+  border:2px solid transparent;
+  background-clip:padding-box;
+  box-shadow:
+    0 0 0 2px var(--foil-3),0 0 0 3.5px rgba(244,227,175,.25),
+    0 14px 34px rgba(0,0,0,.6), inset 0 2px 14px rgba(244,227,175,.12);
+  display:flex;align-items:center;justify-content:center;
+}
+.medallion::before{
+  content:"";position:absolute;inset:7px;border-radius:50%;
+  border:1px solid rgba(244,227,175,.4);
+}
+.medallion b{
+  font-family:var(--display);font-weight:900;font-size:52px;
+  background:linear-gradient(175deg,var(--foil-1),var(--foil-2) 55%,var(--foil-4));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));
+}
+.medallion .lau{position:absolute;bottom:6px;font-size:13px;color:var(--foil-2);letter-spacing:4px}
+.m-title{
+  text-align:center;font-family:var(--display);font-weight:900;font-size:44px;letter-spacing:.16em;
+  background:linear-gradient(100deg,var(--foil-4) 0%,var(--foil-2) 26%,#FFF6D8 50%,var(--foil-2) 74%,var(--foil-4) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 9px rgba(0,0,0,.6));
+}
+.m-sub{
+  text-align:center;font-family:var(--serif);font-style:italic;font-size:17.5px;
+  color:var(--ivory-dim);opacity:.8;letter-spacing:.12em;
+}
+.plaque{ /* deri profil plaketi */
+  margin:0 26px;border-radius:16px;padding:13px 16px;display:flex;gap:13px;align-items:center;
+  background:
+    linear-gradient(160deg,rgba(244,227,175,.07),rgba(0,0,0,.25)),
+    repeating-linear-gradient(115deg,rgba(0,0,0,.12) 0 2px,transparent 2px 5px),
+    #0D1B14;
+  border:1px solid rgba(244,227,175,.35);
+  box-shadow:inset 0 1px 0 rgba(244,227,175,.15),0 8px 22px rgba(0,0,0,.4);
+}
+.sig{ /* mühür seviye rozeti */
+  width:46px;height:46px;border-radius:50%;flex-shrink:0;position:relative;
+  background:radial-gradient(60% 60% at 35% 30%,var(--foil-1),var(--foil-2) 55%,var(--foil-4));
+  box-shadow:inset 0 -3px 6px rgba(0,0,0,.35),inset 0 2px 3px rgba(255,255,255,.5),0 4px 10px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:900;color:#241B08;font-size:19px;
+}
+.plq-t{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.06em;color:var(--foil-1)}
+.plq-s{font-size:10.5px;color:rgba(251,246,233,.5);margin-top:2px}
+.plq-bar{height:4px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:7px;overflow:hidden}
+.plq-bar i{display:block;height:100%;width:62%;border-radius:99px;background:linear-gradient(90deg,var(--foil-3),var(--foil-1))}
+.seg2{
+  margin:0 44px;display:flex;border-radius:13px;overflow:hidden;
+  border:1px solid rgba(244,227,175,.4);background:rgba(0,0,0,.35);
+}
+.seg2 div{flex:1;text-align:center;padding:12px;font-weight:800;font-size:13.5px;color:rgba(251,246,233,.55)}
+.seg2 .on{
+  background:linear-gradient(180deg,var(--foil-1),var(--foil-2) 55%,var(--foil-3));
+  color:#241B08;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+}
+.cta{
+  margin:0 40px;text-align:center;padding:17px;border-radius:15px;
+  font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.14em;color:#241B08;
+  background:linear-gradient(180deg,#FFF2CC,var(--foil-2) 45%,var(--foil-3));
+  box-shadow:0 10px 26px rgba(217,184,101,.25),inset 0 1.5px 0 rgba(255,255,255,.7),inset 0 -2px 4px rgba(0,0,0,.2);
+  position:relative;overflow:hidden;
+}
+.cta::after{
+  content:"";position:absolute;top:0;bottom:0;left:-70%;width:36%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+  transform:skewX(-18deg);
+}
+.ghost2{
+  margin:0 40px;display:flex;gap:12px;
+}
+.ghost2 div{
+  flex:1;text-align:center;padding:13px;border-radius:13px;font-weight:800;font-size:13px;
+  color:var(--foil-1);border:1px solid rgba(244,227,175,.4);background:rgba(0,0,0,.3);
+}
+.m-foot{text-align:center;font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(251,246,233,.35)}
+
+/* ============ 2 — OYUN MASASI ============ */
+.gtop{
+  display:flex;gap:8px;align-items:stretch;padding:52px 12px 10px;
+}
+.gplq{
+  flex:1;border-radius:13px;padding:8px 12px;min-width:0;
+  background:linear-gradient(160deg,rgba(244,227,175,.08),rgba(0,0,0,.3)),#0C1A13;
+  border:1px solid rgba(244,227,175,.22);
+}
+.gplq.on{border-color:var(--foil-2);box-shadow:0 0 0 1px rgba(244,227,175,.35),0 0 18px rgba(217,184,101,.15)}
+.gplq .n{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.04em;color:var(--foil-1);white-space:nowrap;overflow:hidden}
+.gplq .m{font-size:10px;color:rgba(251,246,233,.5);margin-top:2px}
+.gmid{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px}
+.gmid .deck{
+  font-family:var(--display);font-weight:700;font-size:18px;
+  color:var(--foil-1);display:flex;align-items:center;gap:5px;
+}
+.gmid .mini{
+  width:14px;height:20px;border-radius:3px;border:1px solid var(--foil-3);
+  background:repeating-linear-gradient(45deg,#0E3A28 0 3px,#0A2A1D 3px 6px);
+}
+.gmid .el{font-size:9px;letter-spacing:.2em;color:rgba(217,184,101,.8);font-weight:800;margin-top:2px}
+.gtable{flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+.tray{ /* per tepsisi */
+  display:inline-flex;padding:7px 9px;border-radius:12px;align-self:flex-start;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.3),rgba(0,0,0,.18)),
+    repeating-linear-gradient(115deg,rgba(0,0,0,.1) 0 2px,transparent 2px 5px);
+  border:1px solid rgba(244,227,175,.22);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.35);
+  position:relative;
+}
+.tray::before{ /* varak köşe pimi */
+  content:"";position:absolute;top:-2.5px;left:12px;right:12px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(244,227,175,.5),transparent);
+}
+.trow{display:flex;gap:9px;flex-wrap:wrap}
+.pcard{
+  width:36px;aspect-ratio:63/88;border-radius:7px;position:relative;flex-shrink:0;
+  background:linear-gradient(168deg,#FFFFFF,#F7F1DF 62%,#EBE2CB);
+  border:1px solid rgba(0,0,0,.2);
+  box-shadow:0 2px 5px rgba(0,0,0,.45),inset 0 0 0 .5px rgba(217,184,101,.5);
+  color:var(--ink);
+}
+.pcard.r{color:var(--red)}
+.pcard .i{
+  position:absolute;top:3px;left:4px;font-family:var(--display);font-weight:900;
+  font-size:11.5px;line-height:1.05;text-align:center;
+}
+.pcard .i em{display:block;font-style:normal;font-size:10.5px;font-family:var(--body)}
+.pcard .i.f{top:auto;left:auto;bottom:3px;right:4px;transform:rotate(180deg)}
+.pcard+.pcard{margin-left:-12px}
+.pcard.glowc{box-shadow:0 0 0 2px var(--foil-1),0 0 16px 3px rgba(244,227,175,.55),0 2px 5px rgba(0,0,0,.45)}
+.ghand{
+  position:relative;padding:14px 0 12px;
+  background:linear-gradient(180deg,transparent,rgba(2,8,5,.9) 40%);
+  border-top:1px solid rgba(244,227,175,.14);
+}
+.ghand .lbl{
+  display:flex;justify-content:space-between;align-items:center;padding:0 16px 4px;
+  font-size:10px;letter-spacing:.22em;font-weight:800;color:var(--foil-2);
+}
+.ghand .lbl span:last-child{
+  letter-spacing:.02em;font-size:10.5px;padding:5px 11px;border-radius:99px;
+  border:1px solid rgba(244,227,175,.3);background:rgba(0,0,0,.35);color:var(--ivory-dim);
+}
+.fan{position:relative;height:118px;margin-top:4px}
+.fan .fc{
+  position:absolute;bottom:6px;left:50%;width:62px;aspect-ratio:63/88;border-radius:9px;
+  background:linear-gradient(168deg,#FFFFFF,#F8F2E1 60%,#ECE3CC);
+  border:1px solid rgba(0,0,0,.2);
+  box-shadow:0 6px 14px rgba(0,0,0,.5),inset 0 0 0 .5px rgba(217,184,101,.55);
+  color:var(--ink);transform-origin:50% 130%;
+}
+.fan .fc.r{color:var(--red)}
+.fan .fc .i{position:absolute;top:5px;left:6px;font-family:var(--display);font-weight:900;font-size:16px;line-height:1.05;text-align:center}
+.fan .fc .i em{display:block;font-style:normal;font-size:14.5px;font-family:var(--body)}
+.fan .fc.up{transform-origin:50% 130%}
+.gact{display:flex;gap:9px;align-items:center;padding:6px 14px 20px}
+.gbtn{
+  flex:1;text-align:center;padding:13px 4px;border-radius:12px;font-weight:800;font-size:13px;
+  border:1px solid rgba(244,227,175,.4);color:var(--foil-1);background:rgba(0,0,0,.35);
+}
+.gbtn.dim{opacity:.4;border-color:rgba(126,36,48,.6);color:#D89AA0}
+.seal{ /* onayla mührü */
+  width:74px;height:74px;border-radius:50%;flex-shrink:0;position:relative;
+  background:radial-gradient(62% 62% at 36% 30%,#FFF2CC,var(--foil-2) 52%,var(--foil-3));
+  box-shadow:0 10px 26px rgba(217,184,101,.3),inset 0 2px 3px rgba(255,255,255,.65),inset 0 -4px 8px rgba(0,0,0,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:900;font-size:12px;letter-spacing:.08em;color:#241B08;
+}
+.seal::before{content:"";position:absolute;inset:5px;border-radius:50%;border:1px dashed rgba(36,27,8,.45)}
+
+/* ============ 3 — ZAFER ============ */
+.vwrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 24px;gap:15px}
+.vpanel{
+  border-radius:22px;padding:30px 22px 24px;text-align:center;position:relative;
+  background:
+    linear-gradient(165deg,rgba(244,227,175,.1),rgba(0,0,0,.2) 40%),
+    linear-gradient(180deg,#0C2218,#071D14);
+  border:1px solid rgba(244,227,175,.45);
+  box-shadow:0 30px 70px rgba(0,0,0,.7),inset 0 1px 0 rgba(244,227,175,.25);
+}
+.vpanel::before{
+  content:"";position:absolute;inset:7px;border-radius:16px;
+  border:1px solid rgba(244,227,175,.18);pointer-events:none;
+}
+.laurel{font-size:30px;letter-spacing:8px;color:var(--foil-2);filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.v-el{font-family:var(--display);font-size:13px;letter-spacing:.3em;color:rgba(217,184,101,.85);margin-top:8px}
+.v-title{
+  font-family:var(--display);font-weight:900;font-size:29px;letter-spacing:.05em;margin:8px 0 2px;
+  background:linear-gradient(100deg,var(--foil-3),var(--foil-1) 45%,#FFF6D8 55%,var(--foil-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.v-sub{font-family:var(--serif);font-style:italic;font-size:16.5px;color:var(--ivory-dim);opacity:.85}
+.v-score{
+  margin:18px auto 6px;width:132px;height:132px;border-radius:50%;position:relative;
+  background:radial-gradient(60% 60% at 36% 30%,#12432E,#071D14);
+  border:2px solid var(--foil-3);
+  box-shadow:0 0 0 5px rgba(244,227,175,.1),0 0 34px rgba(217,184,101,.22),inset 0 2px 12px rgba(244,227,175,.14);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.v-score b{
+  font-family:var(--display);font-weight:900;font-size:41px;
+  background:linear-gradient(175deg,#FFF6D8,var(--foil-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.v-score span{font-size:10px;letter-spacing:.24em;color:rgba(251,246,233,.55);font-weight:800}
+.v-rows{margin-top:14px;border-top:1px solid rgba(244,227,175,.16)}
+.v-rows div{
+  display:flex;justify-content:space-between;padding:10px 6px;font-size:13.5px;color:var(--ivory-dim);
+  border-bottom:1px solid rgba(244,227,175,.1);
+}
+.v-rows b{font-variant-numeric:tabular-nums;color:var(--foil-1)}
+.v-chip{
+  display:inline-flex;align-items:center;gap:8px;margin-top:15px;padding:9px 20px;border-radius:999px;
+  border:1px solid var(--foil-2);background:rgba(217,184,101,.1);
+  font-weight:800;font-size:13.5px;color:var(--foil-1);
+}
+.vcta{
+  text-align:center;padding:15px;border-radius:14px;margin:0 6px;
+  font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.12em;color:#241B08;
+  background:linear-gradient(180deg,#FFF2CC,var(--foil-2) 45%,var(--foil-3));
+  box-shadow:0 10px 24px rgba(217,184,101,.22),inset 0 1.5px 0 rgba(255,255,255,.7);
+}
+@media (max-width:1200px){.stage{gap:34px}}
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>KASTET · PREMIUM KONSEPT</h1>
+  <p>"Altın Varak" — gece zümrüt, şampanya altını, fildişi. Yalnızca önizleme; canlı oyuna dokunulmadı.</p>
+</div>
+<div class="palette">
+  <div class="chip" style="background:#04120C"><span>Gece Zümrüt</span></div>
+  <div class="chip" style="background:#0E3A28"><span>Çuha</span></div>
+  <div class="chip" style="background:linear-gradient(160deg,#F4E3AF,#9C7A35)"><span>Varak</span></div>
+  <div class="chip" style="background:#FBF6E9"><span>Fildişi</span></div>
+  <div class="chip" style="background:#7E2430"><span>Oxblood</span></div>
+</div>
+
+<div class="stage">
+
+  <!-- ============ 1: MENÜ ============ -->
+  <div class="slot">
+    <div class="cap">ANA MENÜ</div>
+    <div class="phone">
+      <div class="statusrow"><span>22:41</span><span>●●● ᯤ ▮</span></div>
+      <div class="screenc feltbg">
+        <div class="z" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:19px;padding:54px 0 26px">
+          <div class="medallion"><b>K</b><span class="lau">❦</span></div>
+          <div>
+            <div class="m-title">KASTET</div>
+            <div class="foil-rule" style="margin-top:9px"><i></i></div>
+            <div class="m-sub" style="margin-top:9px">Şark Kulübü İskambil Salonu</div>
+          </div>
+          <div class="plaque">
+            <div class="sig">5</div>
+            <div style="flex:1;min-width:0">
+              <div class="plq-t">USTA</div>
+              <div class="plq-s">18 zafer · 42 el · 1860 / 2200 tecrübe</div>
+              <div class="plq-bar"><i></i></div>
+            </div>
+          </div>
+          <div class="seg2"><div>Orta</div><div class="on">Zor</div></div>
+          <div class="cta">MASAYA OTUR</div>
+          <div class="ghost2"><div>🏆 Ödüller</div><div>Nasıl Oynanır?</div></div>
+          <div class="m-foot">iki deste, iki joker — söz masada kalır</div>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Madalyon arma</b> + gravür monogram deseni zemine işlendi. Başlık gerçek varak degrade, alt başlık italik serif "kulüp" ağzıyla. Profil, <b>deri plaket + mühür rozet</b> oldu; ana düğme ışık süpürmeli altın plaka.</div>
+  </div>
+
+  <!-- ============ 2: OYUN MASASI ============ -->
+  <div class="slot">
+    <div class="cap">OYUN MASASI</div>
+    <div class="phone">
+      <div class="statusrow"><span>22:43</span><span>●●● ᯤ ▮</span></div>
+      <div class="screenc feltbg">
+        <div class="z gtop">
+          <div class="gplq on"><div class="n">Ece</div><div class="m">6 kart · −50 puan</div></div>
+          <div class="gmid"><div class="deck"><span class="mini"></span>14</div><div class="el">2. EL</div></div>
+          <div class="gplq"><div class="n">Bot (Zor)</div><div class="m">2 kart · 57 puan</div></div>
+        </div>
+        <div class="z gtable">
+          <div class="tray"><div class="trow">
+            <div class="pcard"><div class="i">8<em>♠</em></div><div class="i f">8<em>♠</em></div></div>
+            <div class="pcard"><div class="i">9<em>♠</em></div><div class="i f">9<em>♠</em></div></div>
+            <div class="pcard"><div class="i">10<em>♠</em></div><div class="i f">10<em>♠</em></div></div>
+            <div class="pcard"><div class="i">J<em>♠</em></div><div class="i f">J<em>♠</em></div></div>
+          </div></div>
+          <div class="tray"><div class="trow">
+            <div class="pcard r"><div class="i">A<em>♥</em></div><div class="i f">A<em>♥</em></div></div>
+            <div class="pcard r"><div class="i">2<em>♥</em></div><div class="i f">2<em>♥</em></div></div>
+            <div class="pcard r"><div class="i">3<em>♥</em></div><div class="i f">3<em>♥</em></div></div>
+          </div></div>
+          <div class="tray"><div class="trow">
+            <div class="pcard glowc"><div class="i">6<em>♦</em></div><div class="i f">6<em>♦</em></div></div>
+            <div class="pcard r glowc"><div class="i">7<em>♦</em></div><div class="i f">7<em>♦</em></div></div>
+            <div class="pcard r glowc"><div class="i">8<em>♦</em></div><div class="i f">8<em>♦</em></div></div>
+          </div></div>
+          <div class="tray"><div class="trow">
+            <div class="pcard"><div class="i">2<em>♣</em></div><div class="i f">2<em>♣</em></div></div>
+            <div class="pcard"><div class="i">3<em>♣</em></div><div class="i f">3<em>♣</em></div></div>
+            <div class="pcard"><div class="i">4<em>♣</em></div><div class="i f">4<em>♣</em></div></div>
+            <div class="pcard"><div class="i">5<em>♣</em></div><div class="i f">5<em>♣</em></div></div>
+            <div class="pcard"><div class="i">6<em>♣</em></div><div class="i f">6<em>♣</em></div></div>
+          </div></div>
+          <div style="align-self:flex-start;border:1.5px dashed rgba(244,227,175,.4);border-radius:12px;padding:12px 18px;color:var(--foil-2);font-weight:700;font-size:12px">+ Yeni Per</div>
+        </div>
+        <div class="z ghand">
+          <div class="lbl"><span>ELİN — 6 KART</span><span>Diziliş: Per ⇅</span></div>
+          <div class="fan">
+            <div class="fc" style="transform:translateX(calc(-50% - 118px)) rotate(-14deg) translateY(14px)"><div class="i">4<em>♠</em></div></div>
+            <div class="fc" style="transform:translateX(calc(-50% - 71px)) rotate(-8.5deg) translateY(5px)"><div class="i">7<em>♠</em></div></div>
+            <div class="fc r" style="transform:translateX(calc(-50% - 24px)) rotate(-3deg)"><div class="i">3<em>♦</em></div></div>
+            <div class="fc r" style="transform:translateX(calc(-50% + 24px)) rotate(3deg) translateY(-13px);box-shadow:0 0 0 2px var(--foil-1),0 10px 20px rgba(0,0,0,.6)"><div class="i">9<em>♦</em></div></div>
+            <div class="fc r" style="transform:translateX(calc(-50% + 71px)) rotate(8.5deg) translateY(5px)"><div class="i">K<em>♥</em></div></div>
+            <div class="fc" style="transform:translateX(calc(-50% + 118px)) rotate(14deg) translateY(14px);color:#7A4FA3"><div class="i">J<em>★</em></div></div>
+          </div>
+          <div class="gact">
+            <div class="gbtn dim">Geri Al</div>
+            <div class="gbtn">Kart Çek</div>
+            <div class="seal">ONAYLA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note">Perler <b>dikişli deri tepsilerde</b>, üstlerinde ince varak pim çizgisi; rakip hamlesi altın halo ile parlıyor. El artık <b>yelpaze (arc)</b> diziliyor, seçilen kart yukarı süzülüyor. Onayla, <b>mühür/jeton</b> formunda tek dokunuş odağı.</div>
+  </div>
+
+  <!-- ============ 3: EL SONU ============ -->
+  <div class="slot">
+    <div class="cap">EL SONU — ZAFER</div>
+    <div class="phone">
+      <div class="statusrow"><span>22:47</span><span>●●● ᯤ ▮</span></div>
+      <div class="screenc feltbg">
+        <div class="z vwrap">
+          <div class="vpanel">
+            <div class="laurel">❦ ❦ ❦</div>
+            <div class="v-el">2. EL TAMAM</div>
+            <div class="v-title">Ece Eli Bitirdi</div>
+            <div class="v-sub">jokeri atarak — rakibin cezası iki kat yazıldı</div>
+            <div class="v-score"><b>−50</b><span>BONUS</span></div>
+            <div class="v-rows">
+              <div><span>Ece — toplam</span><b>−100</b></div>
+              <div><span>Bot (Zor) — toplam</span><b>+171</b></div>
+            </div>
+            <div class="v-chip">✦ +145 tecrübe · Yeni unvan: Usta II</div>
+          </div>
+          <div class="vcta">YENİ EL</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">Zafer, <b>defne + çift çerçeveli varak panel</b> ve döküm <b>skor madalyonu</b> ile kutlanıyor. Puan tablosu yerine tek nefeste okunan hiyerarşi: kim, nasıl, kaç.</div>
+  </div>
+
+</div>
+</body>
+</html>
